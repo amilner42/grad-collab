@@ -4,6 +4,8 @@ module Page.Home exposing (Model, Msg, init, update, view)
 -}
 
 import Api.Core exposing (Cred)
+import Api.Errors.Form as FormError
+import Bulma
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -16,12 +18,15 @@ import Viewer
 
 
 type alias Model =
-    { session : Session }
+    { session : Session
+    }
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { session = session }, Cmd.none )
+    ( { session = session }
+    , Cmd.none
+    )
 
 
 
@@ -32,32 +37,37 @@ view : Model -> { title : String, content : Html Msg }
 view model =
     { title = "Home"
     , content =
-        section
-            [ class "section is-medium" ]
-            [ div
-                [ class "container" ]
-                [ div
-                    [ class "columns is-centered" ]
-                    [ div
-                        [ class "column is-half" ]
-                        [ h1
-                            [ class "title has-text-centered" ]
-                            [ text "Home Page" ]
-                        , div
-                            [ class "content has-text-centered" ]
-                            [ text <|
-                                case Session.viewer model.session of
-                                    Nothing ->
-                                        "Guest"
+        case Session.viewer model.session of
+            Nothing ->
+                renderLandingPage
 
-                                    Just viewer ->
-                                        "Logged In: " ++ Viewer.getEmail viewer
-                            ]
-                        ]
+            Just viewer ->
+                div
+                    []
+                    [ text "TODO" ]
+    }
+
+
+renderLandingPage : Html Msg
+renderLandingPage =
+    section
+        [ class "section is-medium" ]
+        [ div
+            [ class "container" ]
+            [ div
+                [ class "columns is-centered" ]
+                [ div
+                    [ class "column is-half" ]
+                    [ h1
+                        [ class "title has-text-centered" ]
+                        [ text "Welcome" ]
+                    , h2
+                        [ class "subtitle has-text-centered" ]
+                        [ text "Log in with your school email to create collab requests." ]
                     ]
                 ]
             ]
-    }
+        ]
 
 
 

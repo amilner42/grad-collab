@@ -37,13 +37,10 @@ Will have log-in/sign-up or logout buttons according to whether there is a `View
 -}
 viewNavbar : { mobileNavbarOpen : Bool, toggleMobileNavbar : msg } -> Maybe Viewer -> Html msg
 viewNavbar { mobileNavbarOpen, toggleMobileNavbar } maybeViewer =
-    nav [ class "navbar is-light" ]
+    nav [ class "navbar is-info" ]
         [ div
             [ class "navbar-brand" ]
-            [ a
-                [ class "navbar-item", href "https://github.com/amilner42/meen-kickstarter" ]
-                [ img [ Asset.src Asset.githubLogo ] [] ]
-            , div
+            [ div
                 [ classList
                     [ ( "navbar-burger", True )
                     , ( "is-active", mobileNavbarOpen )
@@ -61,6 +58,7 @@ viewNavbar { mobileNavbarOpen, toggleMobileNavbar } maybeViewer =
             [ div
                 [ class "navbar-start" ]
                 [ a [ class "navbar-item", Route.href Route.Home ] [ text "Home" ]
+                , a [ class "navbar-item", Route.href Route.Create ] [ text "Create" ]
                 ]
             , div
                 [ class "navbar-end" ]
@@ -77,7 +75,7 @@ viewNavbar { mobileNavbarOpen, toggleMobileNavbar } maybeViewer =
                     Just viewer ->
                         [ a
                             [ class "navbar-item", Route.href Route.Logout ]
-                            [ text "Log out" ]
+                            [ text <| "Log out, " ++ Viewer.getEmail viewer ]
                         ]
                 )
             ]

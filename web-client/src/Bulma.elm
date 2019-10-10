@@ -23,13 +23,20 @@ This will send your html in your control a bool representing whether there is cu
 an error, this is helpful for changing css classes on the input.
 
 -}
-formControl : (Bool -> Html msg) -> List String -> Html msg
-formControl htmlInput errors =
+formControl : (Bool -> Html msg) -> List String -> Maybe String -> Html msg
+formControl htmlInput errors maybeLabel =
     div [ class "field" ] <|
-        [ div
-            [ class "control" ]
-            [ htmlInput <| not <| List.isEmpty errors ]
-        ]
+        (case maybeLabel of
+            Nothing ->
+                []
+
+            Just labelText ->
+                [ label [ class "label" ] [ text labelText ] ]
+        )
+            ++ [ div
+                    [ class "control" ]
+                    [ htmlInput <| not <| List.isEmpty errors ]
+               ]
             ++ List.map
                 (\error -> p [ class "help is-danger" ] [ text error ])
                 errors

@@ -16,6 +16,7 @@ import Http exposing (Error(..))
 import Json.Decode as Decode
 import Page
 import Page.Blank as Blank
+import Page.Create as Create
 import Page.Home as Home
 import Page.Login as Login
 import Page.NotFound as NotFound
@@ -42,6 +43,7 @@ type PageModel
     | Home Home.Model
     | Login Login.Model
     | Register Register.Model
+    | Create Create.Model
 
 
 init : Decode.Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -80,14 +82,17 @@ view model =
         NotFound _ ->
             viewPage (\_ -> Ignored) NotFound.view
 
-        Home home ->
-            viewPage GotHomeMsg (Home.view home)
+        Home homeModel ->
+            viewPage GotHomeMsg (Home.view homeModel)
 
-        Login login ->
-            viewPage GotLoginMsg (Login.view login)
+        Login loginModel ->
+            viewPage GotLoginMsg (Login.view loginModel)
 
-        Register register ->
-            viewPage GotRegisterMsg (Register.view register)
+        Register registerModel ->
+            viewPage GotRegisterMsg (Register.view registerModel)
+
+        Create createModel ->
+            viewPage GotCreateMsg (Create.view createModel)
 
 
 
@@ -105,6 +110,7 @@ type Msg
     | GotHomeMsg Home.Msg
     | GotLoginMsg Login.Msg
     | GotRegisterMsg Register.Msg
+    | GotCreateMsg Create.Msg
 
 
 toSession : Model -> Session
@@ -125,12 +131,18 @@ toSession { pageModel } =
         Register registerModel ->
             registerModel.session
 
+        Create createModel ->
+            createModel.session
+
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo maybeRoute model =
     let
         session =
             toSession model
+
+        navKey =
+            Session.navKey session
 
         closeMobileNavbar =
             { model | mobileNavbarOpen = False }
@@ -143,7 +155,7 @@ changeRouteTo maybeRoute model =
 
         Just Route.Root ->
             ( closeMobileNavbar
-            , Route.replaceUrl (Session.navKey session) Route.Home
+            , Route.replaceUrl navKey Route.Home
             )
 
         Just Route.Logout ->
@@ -164,7 +176,7 @@ changeRouteTo maybeRoute model =
 
                 Just _ ->
                     ( closeMobileNavbar
-                    , Route.replaceUrl (Session.navKey session) Route.Home
+                    , Route.replaceUrl navKey Route.Home
                     )
 
         Just Route.Register ->
@@ -176,8 +188,20 @@ changeRouteTo maybeRoute model =
 
                 Just _ ->
                     ( closeMobileNavbar
+                    , Route.replaceUrl navKey Route.Home
+                    )
+
+        Just Route.Create ->
+            -- Don't go to create if they are not signed in.
+            case Session.viewer <| toSession model of
+                Nothing ->
+                    ( closeMobileNavbar
                     , Route.replaceUrl (Session.navKey session) Route.Home
                     )
+
+                Just viewer ->
+                    Create.init session viewer
+                        |> updatePageModel Create GotCreateMsg model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -271,6 +295,14 @@ update msg model =
 
         -- Ignore message for wrong page.
         ( GotHomeMsg _, _ ) ->
+            ( model, Cmd.none )
+
+        ( GotCreateMsg pageMsg, Create create ) ->
+            Create.update pageMsg create
+                |> updatePageModel Create GotCreateMsg model
+
+        -- Ignore message for wrong page.
+        ( GotCreateMsg _, _ ) ->
             ( model, Cmd.none )
 
 

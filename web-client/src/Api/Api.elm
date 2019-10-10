@@ -1,4 +1,4 @@
-module Api.Api exposing (getCurrentUser, login, logout, register)
+module Api.Api exposing (createCollabRequest, getCurrentUser, login, logout, register)
 
 {-| This module contains the `Cmd.Cmd`s to access API routes.
 -}
@@ -8,6 +8,7 @@ import Api.Endpoint as Endpoint
 import Api.Errors.Form as FormError
 import Api.Errors.GetCurrentUser as GetCurrentUserError
 import Api.Errors.Unknown as UnknownError
+import CollabRequest exposing (CollabRequestData)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (optional)
@@ -82,7 +83,7 @@ register { email, password } handleResult =
     in
     Core.post
         Endpoint.users
-        (Just (seconds 10))
+        standardTimeout
         Nothing
         body
         (Core.expectJsonWithCred handleResult Viewer.decoder FormError.decoder)
@@ -96,10 +97,26 @@ logout : (Result.Result (Core.HttpError UnknownError.Error) () -> msg) -> Cmd.Cm
 logout handleResult =
     Core.post
         Endpoint.logout
-        (Just (seconds 10))
+        standardTimeout
         Nothing
         Http.emptyBody
         (Core.expectJson handleResult (Decode.succeed ()) UnknownError.decoder)
+
+
+
+-- CREATE COLLAB REQUEST
+
+
+{-| Upon success get the ID of the newly created collab request.
+-}
+createCollabRequest : CollabRequestData -> (Result.Result (Core.HttpError FormError.Error) String -> msg) -> Cmd.Cmd msg
+createCollabRequest collabRequestData handleResult =
+    Core.post
+        Endpoint.collabRequests
+        standardTimeout
+        Nothing
+        (Http.jsonBody <| CollabRequest.encode collabRequestData)
+        (Core.expectJson handleResult (Decode.field "collabRequestId" Decode.string) FormError.decoder)
 
 
 

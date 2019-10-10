@@ -11,6 +11,7 @@ import { expressValidatorToFormErrorMiddleware } from "./util/form";
 import cookieParser from "cookie-parser";
 
 import * as userRoutes from "./routes/user";
+import * as collabRequestRoutes from "./routes/collab-request";
 
 
 // Create Express server
@@ -53,7 +54,19 @@ require("./config/passport");
 app.post("/login", userRoutes.postLoginValidator, expressValidatorToFormErrorMiddleware, userRoutes.postLogin);
 app.post("/logout", userRoutes.postLogout);
 app.get("/me", userRoutes.getCurrentUser);
-app.post("/users", userRoutes.postRegisterValidator, expressValidatorToFormErrorMiddleware, userRoutes.postRegister);
+app.post(
+    "/users",
+    userRoutes.postRegisterValidator,
+    expressValidatorToFormErrorMiddleware,
+    userRoutes.postRegister
+);
+app.post(
+    "/collab-requests",
+    collabRequestRoutes.postCollabRequestValidators,
+    expressValidatorToFormErrorMiddleware,
+    collabRequestRoutes.postCollabRequest
+);
+
 
 
 export default app;

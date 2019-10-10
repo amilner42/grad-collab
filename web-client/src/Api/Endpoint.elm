@@ -1,4 +1,4 @@
-module Api.Endpoint exposing (Endpoint, login, logout, me, request, users)
+module Api.Endpoint exposing (Endpoint, collabRequests, login, logout, me, request, users)
 
 {-| This module defines the opaque `Endpoint` type and the `request` ability to make an http request to an endpoint.
 -}
@@ -53,6 +53,11 @@ me =
 users : Endpoint
 users =
     url [ "users" ] []
+
+
+collabRequests : Endpoint
+collabRequests =
+    url [ "collab-requests" ] []
 
 
 

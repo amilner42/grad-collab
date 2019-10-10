@@ -68,13 +68,14 @@ view model =
                             (\hasError ->
                                 input
                                     [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                    , placeholder "Email"
+                                    , placeholder "school email"
                                     , onInput EnteredEmail
                                     , value model.form.email
                                     ]
                                     []
                             )
                             (FormError.getErrorForField "email" model.formError)
+                            Nothing
                         , Bulma.formControl
                             (\hasError ->
                                 input
@@ -87,6 +88,7 @@ view model =
                                     []
                             )
                             (FormError.getErrorForField "password" model.formError)
+                            Nothing
                         , button
                             [ class "button is-success is-fullwidth is-large"
                             , onClick SubmittedForm
