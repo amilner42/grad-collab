@@ -8,6 +8,7 @@ import CollabRequest
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Route
 import Session exposing (Session)
 import Viewer exposing (Viewer)
 
@@ -191,6 +192,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
+        navKey =
+            Session.navKey model.session
+
         updateFormData updater modelIn =
             { modelIn | collabRequestFormData = updater model.collabRequestFormData }
     in
@@ -223,7 +227,7 @@ update msg model =
             ( model, Api.createCollabRequest model.collabRequestFormData CompletedCreateCollabRequest )
 
         CompletedCreateCollabRequest (Ok collabRequestId) ->
-            ( model, Cmd.none )
+            ( model, Route.replaceUrl navKey <| Route.BrowseCollabRequest collabRequestId )
 
         CompletedCreateCollabRequest (Err httpCreateRequestError) ->
             ( { model | collabRequestFormError = FormError.fromHttpError httpCreateRequestError }, Cmd.none )

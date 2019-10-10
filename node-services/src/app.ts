@@ -66,7 +66,10 @@ app.post(
     expressValidatorToFormErrorMiddleware,
     collabRequestRoutes.postCollabRequest
 );
-
+app.get(
+  "/collab-requests/:id",
+  collabRequestRoutes.getCollabRequest
+);
 
 
 export default app;

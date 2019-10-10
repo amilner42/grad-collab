@@ -1,7 +1,22 @@
-module CollabRequest exposing (CollabRequestData, empty, encode)
+module CollabRequest exposing (CollabRequest, CollabRequestData, decoder, empty, encode)
 
 import Api.Errors.Form as FormError
+import Json.Decode as Decode
+import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Json.Encode as Encode
+
+
+type alias CollabRequest =
+    { field : String
+    , subject : String
+    , projectImpactSummary : String
+    , expectedTasks : String
+    , expectedSkills : String
+    , expectedTime : String
+    , offer : String
+    , additionalInfo : String
+    , userId : String
+    }
 
 
 type alias CollabRequestData =
@@ -50,3 +65,17 @@ encode collabRequest =
         , ( "offer", Encode.string collabRequest.offer )
         , ( "additionalInfo", Encode.string collabRequest.additionalInfo )
         ]
+
+
+decoder : Decode.Decoder CollabRequest
+decoder =
+    Decode.succeed CollabRequest
+        |> required "field" Decode.string
+        |> required "subject" Decode.string
+        |> required "projectImpactSummary" Decode.string
+        |> required "expectedTasks" Decode.string
+        |> required "expectedSkills" Decode.string
+        |> required "expectedTime" Decode.string
+        |> required "offer" Decode.string
+        |> required "additionalInfo" Decode.string
+        |> required "userId" Decode.string

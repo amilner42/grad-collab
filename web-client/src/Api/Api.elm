@@ -1,4 +1,4 @@
-module Api.Api exposing (createCollabRequest, getCurrentUser, login, logout, register)
+module Api.Api exposing (createCollabRequest, getCollabRequest, getCurrentUser, login, logout, register)
 
 {-| This module contains the `Cmd.Cmd`s to access API routes.
 -}
@@ -117,6 +117,19 @@ createCollabRequest collabRequestData handleResult =
         Nothing
         (Http.jsonBody <| CollabRequest.encode collabRequestData)
         (Core.expectJson handleResult (Decode.field "collabRequestId" Decode.string) FormError.decoder)
+
+
+
+-- GET COLLAB REQUEST
+
+
+getCollabRequest : String -> (Result.Result (Core.HttpError UnknownError.Error) CollabRequest.CollabRequest -> msg) -> Cmd.Cmd msg
+getCollabRequest collabRequestId handleResult =
+    Core.get
+        (Endpoint.collabRequest collabRequestId)
+        standardTimeout
+        Nothing
+        (Core.expectJson handleResult CollabRequest.decoder UnknownError.decoder)
 
 
 

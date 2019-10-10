@@ -16,6 +16,7 @@ import Http exposing (Error(..))
 import Json.Decode as Decode
 import Page
 import Page.Blank as Blank
+import Page.BrowseCollabRequest as BrowseCollabRequest
 import Page.Create as Create
 import Page.Home as Home
 import Page.Login as Login
@@ -44,6 +45,7 @@ type PageModel
     | Login Login.Model
     | Register Register.Model
     | Create Create.Model
+    | BrowseCollabRequest BrowseCollabRequest.Model
 
 
 init : Decode.Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -94,6 +96,9 @@ view model =
         Create createModel ->
             viewPage GotCreateMsg (Create.view createModel)
 
+        BrowseCollabRequest browseCollabRequestModel ->
+            viewPage GotBrowseCollabRequestMsg (BrowseCollabRequest.view browseCollabRequestModel)
+
 
 
 -- UPDATE
@@ -111,6 +116,7 @@ type Msg
     | GotLoginMsg Login.Msg
     | GotRegisterMsg Register.Msg
     | GotCreateMsg Create.Msg
+    | GotBrowseCollabRequestMsg BrowseCollabRequest.Msg
 
 
 toSession : Model -> Session
@@ -133,6 +139,9 @@ toSession { pageModel } =
 
         Create createModel ->
             createModel.session
+
+        BrowseCollabRequest browseCollabRequestModel ->
+            browseCollabRequestModel.session
 
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -202,6 +211,10 @@ changeRouteTo maybeRoute model =
                 Just viewer ->
                     Create.init session viewer
                         |> updatePageModel Create GotCreateMsg model
+
+        Just (Route.BrowseCollabRequest id) ->
+            BrowseCollabRequest.init session id
+                |> updatePageModel BrowseCollabRequest GotBrowseCollabRequestMsg model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -303,6 +316,14 @@ update msg model =
 
         -- Ignore message for wrong page.
         ( GotCreateMsg _, _ ) ->
+            ( model, Cmd.none )
+
+        ( GotBrowseCollabRequestMsg pageMsg, BrowseCollabRequest browseCollabRequestModel ) ->
+            BrowseCollabRequest.update pageMsg browseCollabRequestModel
+                |> updatePageModel BrowseCollabRequest GotBrowseCollabRequestMsg model
+
+        -- Ignore message for wrong page.
+        ( GotBrowseCollabRequestMsg _, _ ) ->
             ( model, Cmd.none )
 
 

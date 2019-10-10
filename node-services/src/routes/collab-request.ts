@@ -46,3 +46,20 @@ export const postCollabRequest = (req: Request, res: Response, next: NextFunctio
     });
 
 };
+
+
+/**
+ * GET /collab-requests/:id
+ * Gets a collab-request by it's ID.
+ */
+export const getCollabRequest = (req: Request, res: Response, next: NextFunction) => {
+    const collabRequestId = req.params.id;
+
+    CollabRequest.findById(collabRequestId).exec((err, collabRequest) => {
+        if (err) {
+            return next(err);
+        }
+
+        return res.status(200).json(collabRequest);
+    });
+}
