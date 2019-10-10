@@ -7,7 +7,8 @@ import Json.Encode as Encode
 
 
 type alias CollabRequest =
-    { field : String
+    { id : String
+    , field : String
     , subject : String
     , projectImpactSummary : String
     , expectedTasks : String
@@ -70,6 +71,7 @@ encode collabRequest =
 decoder : Decode.Decoder CollabRequest
 decoder =
     Decode.succeed CollabRequest
+        |> required "_id" Decode.string
         |> required "field" Decode.string
         |> required "subject" Decode.string
         |> required "projectImpactSummary" Decode.string

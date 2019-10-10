@@ -1,4 +1,4 @@
-module Api.Errors.Unknown exposing (Error, decoder)
+module Api.Errors.Unknown exposing (Error(..), decoder)
 
 import Json.Decode as Decode
 

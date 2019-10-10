@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, href, replaceUrl)
+module Route exposing (Route(..), fromUrl, href, pushUrl, replaceUrl)
 
 {-| A type to represent possible routes with helper functions.
 -}
@@ -59,6 +59,13 @@ href targetRoute =
 replaceUrl : Nav.Key -> Route -> Cmd msg
 replaceUrl key route =
     Nav.replaceUrl key (routeToString route)
+
+
+{-| A pushUrl that takes a Route instead of a url.
+-}
+pushUrl : Nav.Key -> Route -> Cmd msg
+pushUrl key route =
+    Nav.pushUrl key (routeToString route)
 
 
 fromUrl : Url -> Maybe Route

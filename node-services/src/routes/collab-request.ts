@@ -63,3 +63,27 @@ export const getCollabRequest = (req: Request, res: Response, next: NextFunction
         return res.status(200).json(collabRequest);
     });
 }
+
+
+/**
+ * GET /collab-requests
+ * Get the collab requests created by the current logged in user.
+ */
+export const getCollabRequests = (req: Request, res: Response, next: NextFunction) => {
+
+    if (!req.user) {
+        return res.sendStatus(401);
+    }
+
+    const user = req.user as UserDocument;
+
+    CollabRequest.find({ userId: user.id }, (err, collabRequests) => {
+
+        if (err) {
+            return next(err);
+        }
+
+        return res.status(200).json(collabRequests);
+    });
+
+}
