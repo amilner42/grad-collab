@@ -1,4 +1,4 @@
-module Page exposing (view)
+module Page exposing (HighlightableTab(..), view)
 
 {-| This allows you to insert a page, providing the navbar outline common to all pages.
 -}
@@ -14,19 +14,32 @@ import Session exposing (Session)
 import Viewer exposing (Viewer)
 
 
+type alias RenderPageConfig msg =
+    { mobileNavbarOpen : Bool
+    , toggleMobileNavbar : msg
+    , maybeViewer : Maybe Viewer
+    , activeTab : Maybe HighlightableTab
+    }
+
+
+type HighlightableTab
+    = Home
+    | Browse
+    | Create
+    | Login
+    | Register
+
+
 {-| Take a page's Html and frames it with a navbar.
 -}
 view :
-    { mobileNavbarOpen : Bool, toggleMobileNavbar : msg }
-    -> Maybe Viewer
+    RenderPageConfig msg
     -> { title : String, content : Html pageMsg }
     -> (pageMsg -> msg)
     -> Document msg
-view navConfig maybeViewer { title, content } toMsg =
+view navConfig { title, content } toMsg =
     { title = title
-    , body =
-        viewNavbar navConfig maybeViewer
-            :: List.map (Html.map toMsg) [ content ]
+    , body = viewNavbar navConfig :: List.map (Html.map toMsg) [ content ]
     }
 
 
@@ -35,8 +48,8 @@ view navConfig maybeViewer { title, content } toMsg =
 Will have log-in/sign-up or logout buttons according to whether there is a `Viewer`.
 
 -}
-viewNavbar : { mobileNavbarOpen : Bool, toggleMobileNavbar : msg } -> Maybe Viewer -> Html msg
-viewNavbar { mobileNavbarOpen, toggleMobileNavbar } maybeViewer =
+viewNavbar : RenderPageConfig msg -> Html msg
+viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeViewer, activeTab } =
     nav [ class "navbar is-info" ]
         [ div
             [ class "navbar-brand" ]
@@ -57,18 +70,50 @@ viewNavbar { mobileNavbarOpen, toggleMobileNavbar } maybeViewer =
             ]
             [ div
                 [ class "navbar-start" ]
-                [ a [ class "navbar-item", Route.href Route.Home ] [ text "Home" ]
-                , a [ class "navbar-item", Route.href Route.Create ] [ text "Create" ]
+                [ a
+                    [ classList
+                        [ ( "navbar-item", True )
+                        , ( "is-active", activeTab == Just Home )
+                        ]
+                    , Route.href Route.Home
+                    ]
+                    [ text "Home" ]
+                , a
+                    [ classList
+                        [ ( "navbar-item", True )
+                        , ( "is-active", activeTab == Just Browse )
+                        ]
+                    , Route.href Route.Browse
+                    ]
+                    [ text "Browse" ]
+                , a
+                    [ classList
+                        [ ( "navbar-item", True )
+                        , ( "is-active", activeTab == Just Create )
+                        ]
+                    , Route.href Route.Create
+                    ]
+                    [ text "Create" ]
                 ]
             , div
                 [ class "navbar-end" ]
                 (case maybeViewer of
                     Nothing ->
                         [ a
-                            [ class "navbar-item", Route.href Route.Register ]
+                            [ classList
+                                [ ( "navbar-item", True )
+                                , ( "is-active", activeTab == Just Register )
+                                ]
+                            , Route.href Route.Register
+                            ]
                             [ text "Sign up" ]
                         , a
-                            [ class "navbar-item", Route.href Route.Login ]
+                            [ classList
+                                [ ( "navbar-item", True )
+                                , ( "is-active", activeTab == Just Login )
+                                ]
+                            , Route.href Route.Login
+                            ]
                             [ text "Log in" ]
                         ]
 

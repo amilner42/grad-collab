@@ -43,8 +43,10 @@ view model =
 
             Just viewer ->
                 div
-                    []
-                    [ text "TODO" ]
+                    [ class "section is-large has-text-centered" ]
+                    [ div [ class "title" ] [ text "Page Under Construction" ]
+                    , div [ class "subtitle" ] [ text "Coming soon." ]
+                    ]
     }
 
 

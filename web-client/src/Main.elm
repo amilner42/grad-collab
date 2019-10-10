@@ -16,6 +16,7 @@ import Http exposing (Error(..))
 import Json.Decode as Decode
 import Page
 import Page.Blank as Blank
+import Page.Browse as Browse
 import Page.BrowseCollabRequest as BrowseCollabRequest
 import Page.Create as Create
 import Page.Home as Home
@@ -46,6 +47,7 @@ type PageModel
     | Register Register.Model
     | Create Create.Model
     | BrowseCollabRequest BrowseCollabRequest.Model
+    | Browse Browse.Model
 
 
 init : Decode.Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -62,14 +64,15 @@ init flags url navKey =
 view : Model -> Document Msg
 view model =
     let
-        viewPage toMsg pageView =
+        viewPage maybeActiveTab toMsg pageView =
             let
                 { title, body } =
                     Page.view
                         { mobileNavbarOpen = model.mobileNavbarOpen
                         , toggleMobileNavbar = ToggledMobileNavbar
+                        , maybeViewer = Session.viewer (toSession model)
+                        , activeTab = maybeActiveTab
                         }
-                        (Session.viewer (toSession model))
                         pageView
                         toMsg
             in
@@ -79,25 +82,28 @@ view model =
     in
     case model.pageModel of
         Redirect _ ->
-            viewPage (\_ -> Ignored) Blank.view
+            viewPage Nothing (\_ -> Ignored) Blank.view
 
         NotFound _ ->
-            viewPage (\_ -> Ignored) NotFound.view
+            viewPage Nothing (\_ -> Ignored) NotFound.view
 
         Home homeModel ->
-            viewPage GotHomeMsg (Home.view homeModel)
+            viewPage (Just Page.Home) GotHomeMsg (Home.view homeModel)
 
         Login loginModel ->
-            viewPage GotLoginMsg (Login.view loginModel)
+            viewPage (Just Page.Login) GotLoginMsg (Login.view loginModel)
 
         Register registerModel ->
-            viewPage GotRegisterMsg (Register.view registerModel)
+            viewPage (Just Page.Register) GotRegisterMsg (Register.view registerModel)
 
         Create createModel ->
-            viewPage GotCreateMsg (Create.view createModel)
+            viewPage (Just Page.Create) GotCreateMsg (Create.view createModel)
 
         BrowseCollabRequest browseCollabRequestModel ->
-            viewPage GotBrowseCollabRequestMsg (BrowseCollabRequest.view browseCollabRequestModel)
+            viewPage (Just Page.Browse) GotBrowseCollabRequestMsg (BrowseCollabRequest.view browseCollabRequestModel)
+
+        Browse browseModel ->
+            viewPage (Just Page.Browse) GotBrowseMsg (Browse.view browseModel)
 
 
 
@@ -117,6 +123,7 @@ type Msg
     | GotRegisterMsg Register.Msg
     | GotCreateMsg Create.Msg
     | GotBrowseCollabRequestMsg BrowseCollabRequest.Msg
+    | GotBrowseMsg Browse.Msg
 
 
 toSession : Model -> Session
@@ -142,6 +149,9 @@ toSession { pageModel } =
 
         BrowseCollabRequest browseCollabRequestModel ->
             browseCollabRequestModel.session
+
+        Browse browseModel ->
+            browseModel.session
 
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -215,6 +225,10 @@ changeRouteTo maybeRoute model =
         Just (Route.BrowseCollabRequest id) ->
             BrowseCollabRequest.init session id
                 |> updatePageModel BrowseCollabRequest GotBrowseCollabRequestMsg model
+
+        Just Route.Browse ->
+            Browse.init session
+                |> updatePageModel Browse GotBrowseMsg model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -324,6 +338,14 @@ update msg model =
 
         -- Ignore message for wrong page.
         ( GotBrowseCollabRequestMsg _, _ ) ->
+            ( model, Cmd.none )
+
+        ( GotBrowseMsg pageMsg, Browse browseModel ) ->
+            Browse.update pageMsg browseModel
+                |> updatePageModel Browse GotBrowseMsg model
+
+        -- Ignore message for wrong page.
+        ( GotBrowseMsg _, _ ) ->
             ( model, Cmd.none )
 
 

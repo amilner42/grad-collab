@@ -26,6 +26,7 @@ type Route
     | Logout
     | Register
     | Create
+    | Browse
     | BrowseCollabRequest String
 
 
@@ -37,6 +38,7 @@ parser =
         , Parser.map Logout (s "logout")
         , Parser.map Register (s "register")
         , Parser.map Create (s "create")
+        , Parser.map Browse (s "browse")
         , Parser.map BrowseCollabRequest (s "browse" </> string)
         ]
 
@@ -91,6 +93,9 @@ routeToString page =
 
                 Create ->
                     [ "create" ]
+
+                Browse ->
+                    [ "browse" ]
 
                 BrowseCollabRequest id ->
                     [ "browse", id ]
