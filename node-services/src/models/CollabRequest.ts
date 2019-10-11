@@ -251,14 +251,14 @@ ${collabRequestDocument.additionalInfo}
 View Project:
 ${linkToApp}
 `
-}`
+}`;
 
     return {
         html,
         text
     };
 
-}
+};
 
 
 export const CollabRequest = mongoose.model<CollabRequestDocument>("CollabRequest", collabRequestSchema);

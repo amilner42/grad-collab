@@ -24,4 +24,4 @@ export const sendEmail = async (config: SendEmailConfig) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
     return sgMail.send(config);
-}
+};

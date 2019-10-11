@@ -21,7 +21,12 @@
         "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
         "debug": "npm run build && npm run watch-debug",
         "serve-debug": "nodemon --inspect dist/server.js",
-        "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
+        "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\"",
+        "forever-list": "forever list",
+        "forever-stop": "forever stop",
+        "forever-stopall": "forever stopall",
+        "forever-api-start": "forever start ./dist/server.js",
+        "forever-restartall": "forever restartall"
     },
     "dependencies": {
         "@sendgrid/mail": "^6.4.0",
@@ -38,6 +43,7 @@
         "express": "^4.17.1",
         "express-session": "^1.16.2",
         "express-validator": "^6.2.0",
+        "forever": "^1.0.0",
         "lusca": "^1.6.1",
         "mongoose": "^5.7.1",
         "nodemailer": "^6.3.0",

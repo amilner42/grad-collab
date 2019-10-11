@@ -64,7 +64,7 @@ export const getCollabRequest = (req: Request, res: Response, next: NextFunction
 
         return res.status(200).json(collabRequest);
     });
-}
+};
 
 
 /**
@@ -88,7 +88,7 @@ export const getCollabRequests = (req: Request, res: Response, next: NextFunctio
         return res.status(200).json(collabRequests);
     });
 
-}
+};
 
 
 export const postCollabRequestInvitesValidators = [
@@ -144,6 +144,6 @@ export const postCollabRequestInvites = async (req: Request, res: Response, next
                 return next(err);
             }
         }
-    )
+    );
 
-}
+};
