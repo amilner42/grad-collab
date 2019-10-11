@@ -1,4 +1,4 @@
-module Api.Core exposing (Cred, HttpError(..), delete, expectJson, expectJsonWithCred, get, getEmail, post, put)
+module Api.Core exposing (Cred, HttpError(..), delete, expectJson, expectJsonWithCred, get, getEmail, getId, post, put)
 
 {-| This module provides all http helpers.
 
@@ -21,21 +21,29 @@ import Url exposing (Url)
 {-| Keep this private so the only way to create this is on an HttpRequest.
 -}
 type Cred
-    = Cred String
+    = Cred String String
 
 
 getEmail : Cred -> String
-getEmail (Cred email) =
+getEmail (Cred id email) =
     email
+
+
+getId : Cred -> String
+getId (Cred id email) =
+    id
 
 
 decodeCredAnd : Decode.Decoder (Cred -> a) -> Decode.Decoder a
 decodeCredAnd decoder =
     let
         decodeCred =
-            Decode.field "email" Decode.string |> Decode.map Cred
+            Decode.succeed Cred
+                |> required "_id" Decode.string
+                |> required "email" Decode.string
     in
-    Decode.map2 (\fromEmail email -> fromEmail email)
+    Decode.map2
+        (\fromCred cred -> fromCred cred)
         decoder
         decodeCred
 

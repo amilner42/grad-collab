@@ -68,6 +68,12 @@ app.post(
 );
 app.get("/collab-requests/:id", collabRequestRoutes.getCollabRequest);
 app.get("/collab-requests", collabRequestRoutes.getCollabRequests);
+app.post(
+  "/collab-requests/:id/invites",
+  collabRequestRoutes.postCollabRequestInvitesValidators,
+  expressValidatorToFormErrorMiddleware,
+  collabRequestRoutes.postCollabRequestInvites
+);
 
 
 export default app;

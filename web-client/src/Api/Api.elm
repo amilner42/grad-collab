@@ -1,4 +1,4 @@
-module Api.Api exposing (createCollabRequest, getCollabRequest, getCollabRequests, getCurrentUser, login, logout, register)
+module Api.Api exposing (createCollabRequest, getCollabRequest, getCollabRequests, getCurrentUser, inviteCollab, login, logout, register)
 
 {-| This module contains the `Cmd.Cmd`s to access API routes.
 -}
@@ -141,6 +141,22 @@ getCollabRequests handleResult =
         standardTimeout
         Nothing
         (Core.expectJson handleResult (Decode.list CollabRequest.decoder) UnknownError.decoder)
+
+
+
+-- INVITE A COLLAB
+
+
+{-| Invite a collab to an open collab-request.
+-}
+inviteCollab : String -> String -> (Result.Result (Core.HttpError FormError.Error) () -> msg) -> Cmd.Cmd msg
+inviteCollab collabRequestId invitedCollabEmail handleResult =
+    Core.post
+        (Endpoint.collabRequestInvites collabRequestId)
+        standardTimeout
+        Nothing
+        (Http.jsonBody <| Encode.object [ ( "invitedCollabEmail", Encode.string invitedCollabEmail ) ])
+        (Core.expectJson handleResult (Decode.succeed ()) FormError.decoder)
 
 
 

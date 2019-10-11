@@ -17,6 +17,7 @@ type alias CollabRequest =
     , offer : String
     , additionalInfo : String
     , userId : String
+    , invitedCollabs : List String
     }
 
 
@@ -81,3 +82,4 @@ decoder =
         |> required "offer" Decode.string
         |> required "additionalInfo" Decode.string
         |> required "userId" Decode.string
+        |> required "invitedCollabs" (Decode.list Decode.string)

@@ -12,11 +12,13 @@ import "../config/passport";
  */
 export const getCurrentUser = (req: Request, res: Response, next: NextFunction) => {
 
-    if (req.user) {
-        return res.json({ email: (req.user as UserDocument).email });
+    if (!req.user) {
+        return res.sendStatus(401);
     }
 
-    return res.sendStatus(401);
+    const user = req.user as UserDocument;
+
+    return res.json({ email: user.email, _id: user.id });
 };
 
 
@@ -47,7 +49,7 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
         }
         req.logIn(user, (err) => {
             if (err) { return next(err); }
-            return res.json({ email: user.email });
+            return res.json({ email: user.email, _id: user.id });
         });
     })(req, res, next);
 };
@@ -71,7 +73,7 @@ export const postRegisterValidator = [
 ];
 
 
-/**
+/*
  * POST /signup
  * Create a new local account.
  */
@@ -104,7 +106,7 @@ export const postRegister = (req: Request, res: Response, next: NextFunction) =>
                 if (err) {
                     return next(err);
                 }
-                return res.json({ email: user.email });
+                return res.json({ email: user.email, _id: user.id });
             });
         });
     });

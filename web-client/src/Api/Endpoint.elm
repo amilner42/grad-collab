@@ -1,4 +1,4 @@
-module Api.Endpoint exposing (Endpoint, collabRequest, collabRequests, login, logout, me, request, users)
+module Api.Endpoint exposing (Endpoint, collabRequest, collabRequestInvites, collabRequests, login, logout, me, request, users)
 
 {-| This module defines the opaque `Endpoint` type and the `request` ability to make an http request to an endpoint.
 -}
@@ -63,6 +63,11 @@ collabRequests =
 collabRequest : String -> Endpoint
 collabRequest collabRequestId =
     url [ "collab-requests", collabRequestId ] []
+
+
+collabRequestInvites : String -> Endpoint
+collabRequestInvites collabRequestId =
+    url [ "collab-requests", collabRequestId, "invites" ] []
 
 
 

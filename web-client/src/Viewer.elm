@@ -29,6 +29,11 @@ getEmail (Viewer cred) =
     Core.getEmail cred
 
 
+getId : Viewer -> String
+getId (Viewer cred) =
+    Core.getId cred
+
+
 decoder : Decode.Decoder (Core.Cred -> Viewer)
 decoder =
     Decode.succeed Viewer
