@@ -35,7 +35,8 @@ const collabRequestSchema = new mongoose.Schema({
 
 export const toHtmlAndTextForEmail = (collabRequestDocument: CollabRequestDocument): HtmlAndText => {
 
-    const linkToApp = `${WEB_CLIENT_ORIGIN}/#/browse/${collabRequestDocument.id}`;
+    // TODO remove grad-collab insertion
+    const linkToApp = `${WEB_CLIENT_ORIGIN}/grad-collab/#/browse/${collabRequestDocument.id}`;
 
     const html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -173,10 +174,12 @@ export const toHtmlAndTextForEmail = (collabRequestDocument: CollabRequestDocume
         <div style="color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;line-height:1.2;padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px;">
         <p style="font-size: 12px; line-height: 1.2; color: #555555; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; mso-line-height-alt: 14px; margin: 0;">Hello,</p>
         <p style="font-size: 12px; line-height: 1.2; color: #555555; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; mso-line-height-alt: 14px; margin: 0;"> </p>
-        <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;">You have been invited to collaborate on a research project. We have put the details for you below.</div>
+        <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;">You have been invited to discuss a possible collaboration on a research project. We have put the details for you below.</div>
         <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;"> </div>
-        <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;"><strong>Field </strong>${collabRequestDocument.field}</div>
-        <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;"><strong>Subject </strong>${collabRequestDocument.subject}</div>
+        <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;"><strong>Field</strong></div>
+        <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;">${collabRequestDocument.field}</div>
+        <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;"><strong>Subject</strong></div>
+        <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;">${collabRequestDocument.subject}</div>
         <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;"> </div>
         <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;"><strong>Project Impact Summary</strong></div>
         <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;">${collabRequestDocument.projectImpactSummary}</div>
@@ -226,10 +229,13 @@ export const toHtmlAndTextForEmail = (collabRequestDocument: CollabRequestDocume
 
     const text = `Hello,
 
-You have been invited to collaborate on a research project. We have put the details for you below.
+You have been invited to discuss a possible collaboration on a research project. We have put the details for you below.
 
-Field: ${collabRequestDocument.field}
-Subject: ${collabRequestDocument.subject}
+Field
+${collabRequestDocument.field}
+
+Subject
+${collabRequestDocument.subject}
 
 Project Impact Summary
 ${collabRequestDocument.projectImpactSummary}
