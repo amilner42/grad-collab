@@ -1,22 +1,20 @@
 import errorHandler from "errorhandler";
-
+import https from "https";
+import http from "http";
+import fs from "fs";
 import app from "./app";
 import { IS_PROD } from "./util/secrets";
 
 
-if (!IS_PROD) {
-    app.use(errorHandler());
+// finally, let's start our server...
+if (IS_PROD) {
+  const privateKey  = fs.readFileSync("./certs/vivadoc-private-key.pem", "utf8");
+  const certificate = fs.readFileSync("./certs/vivadoc.cert", "utf8");
+  const credentials = { key: privateKey, cert: certificate };
+
+  const httpsServer = https.createServer(credentials, app);
+  httpsServer.listen(app.get("port"));
+} else {
+  const httpServer = http.createServer(app);
+  httpServer.listen(app.get("port"));
 }
-
-
-const server = app.listen(app.get("port"), () => {
-    console.log(
-        "  App is running at http://localhost:%d in %s mode",
-        app.get("port"),
-        app.get("env")
-    );
-    console.log("  Press CTRL-C to stop\n");
-});
-
-
-export default server;
