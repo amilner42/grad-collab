@@ -27,7 +27,8 @@
         "forever-stop": "forever stop",
         "forever-stopall": "forever stopall",
         "forever-api-start": "forever start ./dist/server.js",
-        "forever-restartall": "forever restartall"
+        "forever-restartall": "forever restartall",
+        "forever-restart": "forever restart"
     },
     "dependencies": {
         "@types/async": "^3.0.2",
