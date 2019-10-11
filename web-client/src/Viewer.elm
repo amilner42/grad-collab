@@ -1,4 +1,4 @@
-module Viewer exposing (Viewer, decoder, getCred, getEmail)
+module Viewer exposing (Viewer, decoder, getCred, getEmail, getId)
 
 {-| The logged-in user currently viewing this page.
 -}

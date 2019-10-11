@@ -11,6 +11,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Session exposing (Session)
+import Viewer
 
 
 type alias Model =
@@ -37,16 +38,17 @@ init session collabRequestId =
 view : Model -> { title : String, content : Html.Html Msg }
 view model =
     { title = "Browse Collab Request"
-    , content = renderFetchCollabRequest model.inviteCollabFormError model.collabRequest model.inviteCollabFormEmail
+    , content = renderFetchCollabRequest (Session.viewer model.session) model.inviteCollabFormError model.collabRequest model.inviteCollabFormEmail
     }
 
 
 renderFetchCollabRequest :
-    FormError.Error
+    Maybe Viewer.Viewer
+    -> FormError.Error
     -> FetchData.FetchData (Core.HttpError UnknownError.Error) CollabRequest.CollabRequest
     -> String
     -> Html.Html Msg
-renderFetchCollabRequest inviteCollabFormError collabRequestFetch inviteCollabFormEmail =
+renderFetchCollabRequest maybeViewer inviteCollabFormError collabRequestFetch inviteCollabFormEmail =
     case collabRequestFetch of
         FetchData.Loading ->
             -- Blank to avoid flashes
@@ -56,12 +58,18 @@ renderFetchCollabRequest inviteCollabFormError collabRequestFetch inviteCollabFo
             div [] [ text "Failed to browse this collab request...sorry!" ]
 
         FetchData.Success collabRequest ->
-            renderCollabRequest inviteCollabFormError inviteCollabFormEmail collabRequest
+            renderCollabRequest maybeViewer inviteCollabFormError inviteCollabFormEmail collabRequest
 
 
-renderCollabRequest : FormError.Error -> String -> CollabRequest.CollabRequest -> Html.Html Msg
-renderCollabRequest inviteCollabFormError inviteCollabFormEmail collabRequest =
+renderCollabRequest : Maybe Viewer.Viewer -> FormError.Error -> String -> CollabRequest.CollabRequest -> Html.Html Msg
+renderCollabRequest maybeViewer inviteCollabFormError inviteCollabFormEmail collabRequest =
     let
+        isOwner =
+            maybeViewer
+                |> Maybe.map Viewer.getId
+                |> Maybe.map ((==) collabRequest.userId)
+                |> Maybe.withDefault False
+
         sectionTitle title =
             div [ class "title is-4" ] [ text title ]
 
@@ -83,62 +91,66 @@ renderCollabRequest inviteCollabFormError inviteCollabFormEmail collabRequest =
     div
         [ class "columns is-centered" ]
         [ div [ class "column is-half has-text-centered" ] <|
-            [ div
-                [ class "section is-small" ]
-                [ sectionTitle "Collaborator Outreach"
-                , div
-                    [ class "content" ]
-                    [ if List.isEmpty collabRequest.invitedCollabs then
-                        text "Invite a collaborator to join on your project."
+            [ if isOwner then
+                div
+                    [ class "section is-small" ]
+                    [ sectionTitle "Collaborator Outreach"
+                    , div
+                        [ class "content" ]
+                        [ if List.isEmpty collabRequest.invitedCollabs then
+                            text "Invite a collaborator to join on your project."
 
-                      else
-                        table [ class "table is-bordered is-striped is-narrow is-hoverable is-fullwidth" ] <|
-                            [ thead
-                                []
-                                [ tr
+                          else
+                            table [ class "table is-bordered is-striped is-narrow is-hoverable is-fullwidth" ] <|
+                                [ thead
                                     []
-                                    [ th
+                                    [ tr
                                         []
-                                        [ text "Invited Collabs" ]
+                                        [ th
+                                            []
+                                            [ text "Invited Collabs" ]
+                                        ]
                                     ]
                                 ]
-                            ]
-                                ++ (collabRequest.invitedCollabs
-                                        |> List.map
-                                            (\collabEmail ->
-                                                tr
-                                                    []
-                                                    [ td
+                                    ++ (collabRequest.invitedCollabs
+                                            |> List.map
+                                                (\collabEmail ->
+                                                    tr
                                                         []
-                                                        [ text collabEmail ]
-                                                    ]
-                                            )
-                                   )
-                    ]
-                , Bulma.formControl
-                    (\hasError ->
-                        input
-                            [ classList
-                                [ ( "input", True )
-                                , ( "is-danger", hasError )
+                                                        [ td
+                                                            []
+                                                            [ text collabEmail ]
+                                                        ]
+                                                )
+                                       )
+                        ]
+                    , Bulma.formControl
+                        (\hasError ->
+                            input
+                                [ classList
+                                    [ ( "input", True )
+                                    , ( "is-danger", hasError )
+                                    ]
+                                , placeholder "Eg. gradstudentemail@uni.com"
+                                , value inviteCollabFormEmail
+                                , onInput EnteredInviteCollabEmail
                                 ]
-                            , placeholder "Eg. gradstudentemail@uni.com"
-                            , value inviteCollabFormEmail
-                            , onInput EnteredInviteCollabEmail
-                            ]
-                            []
-                    )
-                    (FormError.getErrorForField "invitedCollabEmail" inviteCollabFormError)
-                    Nothing
-                , p
-                    [ class "title is-size-7 has-text-danger has-text-centered" ]
-                    (List.map text <| inviteCollabFormError.entire)
-                , button
-                    [ class "button is-success is-medium"
-                    , onClick SubmittedForm
+                                []
+                        )
+                        (FormError.getErrorForField "invitedCollabEmail" inviteCollabFormError)
+                        Nothing
+                    , p
+                        [ class "title is-size-7 has-text-danger has-text-centered" ]
+                        (List.map text <| inviteCollabFormError.entire)
+                    , button
+                        [ class "button is-success is-medium"
+                        , onClick SubmittedForm
+                        ]
+                        [ text "invite" ]
                     ]
-                    [ text "invite" ]
-                ]
+
+              else
+                div [ style "height" "50px" ] []
             , sectionTitle "Collaboration Request Information"
             , singleFieldTitle "Field"
             , singleFieldContent collabRequest.field
