@@ -229,16 +229,8 @@ changeRouteTo maybeRoute model =
                         |> updatePageModel Account GotAccountMsg model
 
         Just Route.Create ->
-            -- Don't go to create if they are not signed in.
-            case Session.viewer <| toSession model of
-                Nothing ->
-                    ( closeMobileNavbar
-                    , Route.replaceUrl (Session.navKey session) Route.Home
-                    )
-
-                Just viewer ->
-                    Create.init session viewer
-                        |> updatePageModel Create GotCreateMsg model
+            Create.init session
+                |> updatePageModel Create GotCreateMsg model
 
         Just (Route.BrowseCollabRequest id) ->
             BrowseCollabRequest.init session id

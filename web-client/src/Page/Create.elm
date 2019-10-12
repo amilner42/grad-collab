@@ -17,20 +17,16 @@ import Viewer exposing (Viewer)
 -- MODEL
 
 
-{-| TODO clean up dup data on session/viewer
--}
 type alias Model =
     { session : Session
-    , viewer : Viewer
     , collabRequestFormError : FormError.Error
     , collabRequestFormData : CollabRequest.CollabRequestData
     }
 
 
-init : Session -> Viewer -> ( Model, Cmd msg )
-init session viewer =
+init : Session -> ( Model, Cmd msg )
+init session =
     ( { session = session
-      , viewer = viewer
       , collabRequestFormError = FormError.empty
       , collabRequestFormData = CollabRequest.empty
       }
@@ -45,131 +41,152 @@ init session viewer =
 view : Model -> { title : String, content : Html.Html Msg }
 view model =
     let
+        maybeViewer =
+            Session.viewer model.session
+
         crFormData =
             model.collabRequestFormData
     in
     { title = "Create"
     , content =
-        section
-            [ class "section" ]
-            [ div
-                [ class "columns is-centered" ]
-                [ div
-                    [ class "column is-half" ]
-                    [ h1 [ class "title has-text-centered" ] [ text "Create a Collaboration Request" ]
-                    , Bulma.formControl
-                        (\hasError ->
-                            input
-                                [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                , placeholder "Eg. Computer Science or Biology"
-                                , onInput EnteredField
-                                , value crFormData.field
+        case maybeViewer of
+            Nothing ->
+                renderLoggedOutCreatePage
+
+            Just viewer ->
+                section
+                    [ class "section" ]
+                    [ div
+                        [ class "columns is-centered" ]
+                        [ div
+                            [ class "column is-half" ]
+                            [ h1 [ class "title has-text-centered" ] [ text "Create a Collaboration Request" ]
+                            , Bulma.formControl
+                                (\hasError ->
+                                    input
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , placeholder "Eg. Computer Science or Biology"
+                                        , onInput EnteredField
+                                        , value crFormData.field
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "field" model.collabRequestFormError)
+                                (Just "Field")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    input
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , placeholder "Eg. Machine Learning or Genomics"
+                                        , onInput EnteredSubject
+                                        , value crFormData.subject
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "subject" model.collabRequestFormError)
+                                (Just "Subject")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    textarea
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , style "min-height" "100px"
+                                        , placeholder "What makes your project impactful and worth contributing to?"
+                                        , onInput EnteredProjectImpactSummary
+                                        , value crFormData.projectImpactSummary
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "projectImpactSummary" model.collabRequestFormError)
+                                (Just "Project Impact Summary")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    textarea
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , style "min-height" "100px"
+                                        , placeholder "What tasks will your collaborator be responsible for?"
+                                        , onInput EnteredExpectedTasks
+                                        , value crFormData.expectedTasks
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "expectedTasks" model.collabRequestFormError)
+                                (Just "Expected Tasks")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    textarea
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , style "min-height" "100px"
+                                        , placeholder "What skills are you looking for from a collaborator?"
+                                        , onInput EnteredExpectedSkills
+                                        , value crFormData.expectedSkills
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "expectedSkills" model.collabRequestFormError)
+                                (Just "Expected Skills")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    input
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , placeholder "Approximately what time commitment are you asking for? Eg. 4 hours a week"
+                                        , onInput EnteredExpectedTime
+                                        , value crFormData.expectedTime
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "expectedTime" model.collabRequestFormError)
+                                (Just "Expected Time Commitment")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    textarea
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , style "min-height" "100px"
+                                        , placeholder "What can you offer upon successful collaboration? Eg. 3rd name on paper if it gets published."
+                                        , onInput EnteredOffer
+                                        , value crFormData.offer
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "offer" model.collabRequestFormError)
+                                (Just "Offer")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    textarea
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , style "min-height" "100px"
+                                        , placeholder "Anything important you couldn't mention above should be placed here."
+                                        , onInput EnteredAdditionalInfo
+                                        , value crFormData.additionalInfo
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "additionalInfo" model.collabRequestFormError)
+                                (Just "Additional Info")
+                            , p
+                                [ class "title is-size-7 has-text-danger has-text-centered" ]
+                                (List.map text model.collabRequestFormError.entire)
+                            , button
+                                [ class "button button is-success is-fullwidth is-large"
+                                , onClick SubmittedForm
                                 ]
-                                []
-                        )
-                        (FormError.getErrorForField "field" model.collabRequestFormError)
-                        (Just "Field")
-                    , Bulma.formControl
-                        (\hasError ->
-                            input
-                                [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                , placeholder "Eg. Machine Learning or Genomics"
-                                , onInput EnteredSubject
-                                , value crFormData.subject
-                                ]
-                                []
-                        )
-                        (FormError.getErrorForField "subject" model.collabRequestFormError)
-                        (Just "Subject")
-                    , Bulma.formControl
-                        (\hasError ->
-                            textarea
-                                [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                , style "min-height" "100px"
-                                , placeholder "What makes your project impactful and worth contributing to?"
-                                , onInput EnteredProjectImpactSummary
-                                , value crFormData.projectImpactSummary
-                                ]
-                                []
-                        )
-                        (FormError.getErrorForField "projectImpactSummary" model.collabRequestFormError)
-                        (Just "Project Impact Summary")
-                    , Bulma.formControl
-                        (\hasError ->
-                            textarea
-                                [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                , style "min-height" "100px"
-                                , placeholder "What tasks will your collaborator be responsible for?"
-                                , onInput EnteredExpectedTasks
-                                , value crFormData.expectedTasks
-                                ]
-                                []
-                        )
-                        (FormError.getErrorForField "expectedTasks" model.collabRequestFormError)
-                        (Just "Expected Tasks")
-                    , Bulma.formControl
-                        (\hasError ->
-                            textarea
-                                [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                , style "min-height" "100px"
-                                , placeholder "What skills are you looking for from a collaborator?"
-                                , onInput EnteredExpectedSkills
-                                , value crFormData.expectedSkills
-                                ]
-                                []
-                        )
-                        (FormError.getErrorForField "expectedSkills" model.collabRequestFormError)
-                        (Just "Expected Skills")
-                    , Bulma.formControl
-                        (\hasError ->
-                            input
-                                [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                , placeholder "Approximately what time commitment are you asking for? Eg. 4 hours a week"
-                                , onInput EnteredExpectedTime
-                                , value crFormData.expectedTime
-                                ]
-                                []
-                        )
-                        (FormError.getErrorForField "expectedTime" model.collabRequestFormError)
-                        (Just "Expected Time Commitment")
-                    , Bulma.formControl
-                        (\hasError ->
-                            textarea
-                                [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                , style "min-height" "100px"
-                                , placeholder "What can you offer upon successful collaboration? Eg. 3rd name on paper if it gets published."
-                                , onInput EnteredOffer
-                                , value crFormData.offer
-                                ]
-                                []
-                        )
-                        (FormError.getErrorForField "offer" model.collabRequestFormError)
-                        (Just "Offer")
-                    , Bulma.formControl
-                        (\hasError ->
-                            textarea
-                                [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                , style "min-height" "100px"
-                                , placeholder "Anything important you couldn't mention above should be placed here."
-                                , onInput EnteredAdditionalInfo
-                                , value crFormData.additionalInfo
-                                ]
-                                []
-                        )
-                        (FormError.getErrorForField "additionalInfo" model.collabRequestFormError)
-                        (Just "Additional Info")
-                    , p
-                        [ class "title is-size-7 has-text-danger has-text-centered" ]
-                        (List.map text model.collabRequestFormError.entire)
-                    , button
-                        [ class "button button is-success is-fullwidth is-large"
-                        , onClick SubmittedForm
+                                [ text "Submit Collaboration Request" ]
+                            ]
                         ]
-                        [ text "Submit Collaboration Request" ]
                     ]
-                ]
-            ]
     }
+
+
+renderLoggedOutCreatePage : Html Msg
+renderLoggedOutCreatePage =
+    div
+        [ class "section is-large has-text-centered" ]
+        [ div
+            [ class "title" ]
+            [ text "Who Are You" ]
+        , div
+            [ class "subtitle" ]
+            [ text "sign up free to instantly start creating collaboration requests" ]
+        ]
 
 
 

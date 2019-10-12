@@ -156,7 +156,7 @@ renderCollabRequestLink collabRequest =
 renderLandingPage : Html Msg
 renderLandingPage =
     section
-        [ class "section is-medium" ]
+        [ class "section is-large" ]
         [ div
             [ class "container" ]
             [ div
@@ -168,7 +168,7 @@ renderLandingPage =
                         [ text "Welcome" ]
                     , h2
                         [ class "subtitle has-text-centered" ]
-                        [ text "Log in with your school email to create collab requests." ]
+                        [ text "join the growing network of academic collaborators" ]
                     ]
                 ]
             ]
