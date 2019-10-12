@@ -1,8 +1,9 @@
-module Api.Api exposing (createCollabRequest, getCollabRequest, getCollabRequests, getCurrentUser, inviteCollab, login, logout, register)
+module Api.Api exposing (createCollabRequest, getCollabRequest, getCollabRequests, getCurrentUser, inviteCollab, login, logout, register, updateAccount)
 
 {-| This module contains the `Cmd.Cmd`s to access API routes.
 -}
 
+import Account
 import Api.Core as Core
 import Api.Endpoint as Endpoint
 import Api.Errors.Form as FormError
@@ -156,6 +157,20 @@ inviteCollab collabRequestId invitedCollabEmail handleResult =
         standardTimeout
         Nothing
         (Http.jsonBody <| Encode.object [ ( "invitedCollabEmail", Encode.string invitedCollabEmail ) ])
+        (Core.expectJson handleResult (Decode.succeed ()) FormError.decoder)
+
+
+
+-- UPDATE AN ACCOUNT
+
+
+updateAccount : String -> Account.AccountData -> (Result.Result (Core.HttpError FormError.Error) () -> msg) -> Cmd.Cmd msg
+updateAccount userId accountData handleResult =
+    Core.patch
+        (Endpoint.user userId)
+        standardTimeout
+        Nothing
+        (Http.jsonBody <| Account.encode accountData)
         (Core.expectJson handleResult (Decode.succeed ()) FormError.decoder)
 
 

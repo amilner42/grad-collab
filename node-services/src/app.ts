@@ -60,6 +60,12 @@ app.post(
     expressValidatorToFormErrorMiddleware,
     userRoutes.postRegister
 );
+app.patch(
+  "/users/:id",
+  userRoutes.patchUpdateUserValidators,
+  expressValidatorToFormErrorMiddleware,
+  userRoutes.patchUpdateUser
+);
 app.post(
     "/collab-requests",
     collabRequestRoutes.postCollabRequestValidators,

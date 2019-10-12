@@ -111,3 +111,70 @@ export const postRegister = (req: Request, res: Response, next: NextFunction) =>
         });
     });
 };
+
+
+export const patchUpdateUserValidators = [
+    check("name").isString(),
+    check("field").isString(),
+    check("specialization").isString(),
+    check("currentAvailability").isString(),
+    check("supervisorEmail").isString(),
+    check("researchExperience").isString(),
+    check("university").isString(),
+    check("degreesHeld").isString(),
+    check("shortBio").isString(),
+    check("linkedInUrl").isString(),
+    check("researchPapers").isString()
+];
+
+
+/**
+ *
+ */
+export const patchUpdateUser = (req: Request, res: Response, next: NextFunction) => {
+
+    if (!req.user) {
+        return res.sendStatus(401);
+    }
+
+    const user = req.user as UserDocument;
+
+    const userId = req.params.id;
+    if ( user.id !== userId ) {
+        return res.sendStatus(403);
+    }
+
+    const updateFields = req.body;
+
+    return User.update({ _id: userId }, updateFields).exec()
+    .then((val) => {
+
+        console.log(`a: ${JSON.stringify(val)}`)
+        if (val.nModified !== 1 || val.ok !== 1) {
+            return next("Failed to update");
+        }
+
+        return res.status(200).json({ ok: 1 });
+    })
+    .catch((err) => {
+        return next(err);
+    });
+}
+
+
+// /**
+//  * GET /users/:id
+//  * Gets the public information for a specific user.
+//  */
+// export const  getUser = (req: Request, res: Response, next: NextFunction) => {
+//
+//     const userId = req.params.id;
+//
+//     User.findById(userId, (err, user) => {
+//         if (err) {
+//             return next(err);
+//         }
+//
+//         delete user.password;
+//     });
+// }

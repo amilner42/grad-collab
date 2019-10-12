@@ -4,6 +4,8 @@ module Page.Account exposing (Model, Msg(..), init, update, view)
 -}
 
 import Account
+import Api.Api as Api
+import Api.Core as Core
 import Api.Errors.Form as FormError
 import Bulma
 import Html exposing (..)
@@ -220,6 +222,7 @@ type Msg
     | EnteredResearchPapers String
     | EnteredResearchExperience String
     | SubmittedForm
+    | CompletedUpdateAccount (Result (Core.HttpError FormError.Error) ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -309,4 +312,12 @@ update msg model =
             )
 
         SubmittedForm ->
+            ( model
+            , Api.updateAccount (Viewer.getId model.viewer) model.accountForm CompletedUpdateAccount
+            )
+
+        CompletedUpdateAccount (Ok _) ->
+            ( model, Cmd.none )
+
+        CompletedUpdateAccount (Err err) ->
             ( model, Cmd.none )

@@ -1,4 +1,4 @@
-module Api.Core exposing (Cred, HttpError(..), delete, expectJson, expectJsonWithCred, get, getEmail, getId, post, put)
+module Api.Core exposing (Cred, HttpError(..), delete, expectJson, expectJsonWithCred, get, getEmail, getId, patch, post, put)
 
 {-| This module provides all http helpers.
 
@@ -154,6 +154,19 @@ put : Endpoint -> Maybe Float -> Maybe String -> Http.Body -> Http.Expect a -> C
 put endpoint timeout tracker body expect =
     Endpoint.request
         { method = "PUT"
+        , endpoint = endpoint
+        , expect = expect
+        , headers = []
+        , body = body
+        , timeout = timeout
+        , tracker = tracker
+        }
+
+
+patch : Endpoint -> Maybe Float -> Maybe String -> Http.Body -> Http.Expect a -> Cmd.Cmd a
+patch endpoint timeout tracker body expect =
+    Endpoint.request
+        { method = "PATCH"
         , endpoint = endpoint
         , expect = expect
         , headers = []
