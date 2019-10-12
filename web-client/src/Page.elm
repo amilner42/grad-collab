@@ -28,6 +28,7 @@ type HighlightableTab
     | Create
     | Login
     | Register
+    | Account
 
 
 {-| Take a page's Html and frames it with a navbar.
@@ -119,8 +120,16 @@ viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeViewer, activeTab } =
 
                     Just viewer ->
                         [ a
+                            [ classList
+                                [ ( "navbar-item", True )
+                                , ( "is-active", activeTab == Just Account )
+                                ]
+                            , Route.href Route.Account
+                            ]
+                            [ text "Account" ]
+                        , a
                             [ class "navbar-item", Route.href Route.Logout ]
-                            [ text <| "Log out, " ++ Viewer.getEmail viewer ]
+                            [ text "Log out" ]
                         ]
                 )
             ]

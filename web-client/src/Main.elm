@@ -15,6 +15,7 @@ import Html.Events exposing (..)
 import Http exposing (Error(..))
 import Json.Decode as Decode
 import Page
+import Page.Account as Account
 import Page.Blank as Blank
 import Page.Browse as Browse
 import Page.BrowseCollabRequest as BrowseCollabRequest
@@ -44,6 +45,7 @@ type PageModel
     | NotFound Session
     | Home Home.Model
     | Login Login.Model
+    | Account Account.Model
     | Register Register.Model
     | Create Create.Model
     | BrowseCollabRequest BrowseCollabRequest.Model
@@ -93,6 +95,9 @@ view model =
         Login loginModel ->
             viewPage (Just Page.Login) GotLoginMsg (Login.view loginModel)
 
+        Account acountModel ->
+            viewPage (Just Page.Account) GotAccountMsg (Account.view acountModel)
+
         Register registerModel ->
             viewPage (Just Page.Register) GotRegisterMsg (Register.view registerModel)
 
@@ -121,6 +126,7 @@ type Msg
     | GotHomeMsg Home.Msg
     | GotLoginMsg Login.Msg
     | GotRegisterMsg Register.Msg
+    | GotAccountMsg Account.Msg
     | GotCreateMsg Create.Msg
     | GotBrowseCollabRequestMsg BrowseCollabRequest.Msg
     | GotBrowseMsg Browse.Msg
@@ -152,6 +158,9 @@ toSession { pageModel } =
 
         Browse browseModel ->
             browseModel.session
+
+        Account accountModel ->
+            accountModel.session
 
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -188,7 +197,7 @@ changeRouteTo maybeRoute model =
 
         Just Route.Login ->
             -- Don't go to login if they are already signed in.
-            case Session.viewer <| toSession model of
+            case Session.viewer session of
                 Nothing ->
                     Login.init session
                         |> updatePageModel Login GotLoginMsg model
@@ -200,7 +209,7 @@ changeRouteTo maybeRoute model =
 
         Just Route.Register ->
             -- Don't go to register if they are already signed in.
-            case Session.viewer <| toSession model of
+            case Session.viewer session of
                 Nothing ->
                     Register.init session
                         |> updatePageModel Register GotRegisterMsg model
@@ -209,6 +218,15 @@ changeRouteTo maybeRoute model =
                     ( closeMobileNavbar
                     , Route.replaceUrl navKey Route.Home
                     )
+
+        Just Route.Account ->
+            case Session.viewer session of
+                Nothing ->
+                    ( closeMobileNavbar, Route.replaceUrl navKey Route.Home )
+
+                Just viewer ->
+                    Account.init session
+                        |> updatePageModel Account GotAccountMsg model
 
         Just Route.Create ->
             -- Don't go to create if they are not signed in.
@@ -314,6 +332,14 @@ update msg model =
 
         -- Ignore message for wrong page.
         ( GotRegisterMsg _, _ ) ->
+            ( model, Cmd.none )
+
+        ( GotAccountMsg pageMsg, Account accountModel ) ->
+            Account.update pageMsg accountModel
+                |> updatePageModel Account GotAccountMsg model
+
+        -- Ignore message for wrong page.
+        ( GotAccountMsg _, _ ) ->
             ( model, Cmd.none )
 
         ( GotHomeMsg pageMsg, Home home ) ->

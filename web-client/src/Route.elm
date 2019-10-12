@@ -24,6 +24,7 @@ type Route
     | Home
     | Login
     | Logout
+    | Account
     | Register
     | Create
     | Browse
@@ -36,6 +37,7 @@ parser =
         [ Parser.map Home Parser.top
         , Parser.map Login (s "login")
         , Parser.map Logout (s "logout")
+        , Parser.map Account (s "account")
         , Parser.map Register (s "register")
         , Parser.map Create (s "create")
         , Parser.map Browse (s "browse")
@@ -94,6 +96,9 @@ routeToString page =
 
                 Logout ->
                     [ "logout" ]
+
+                Account ->
+                    [ "account" ]
 
                 Register ->
                     [ "register" ]
