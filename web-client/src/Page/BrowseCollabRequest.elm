@@ -1,5 +1,6 @@
 module Page.BrowseCollabRequest exposing (Model, Msg, init, update, view)
 
+import Account
 import Api.Api as Api
 import Api.Core as Core
 import Api.Errors.Form as FormError
@@ -11,7 +12,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Session exposing (Session)
-import Viewer
+import User exposing (User)
 
 
 type alias Model =
@@ -20,6 +21,7 @@ type alias Model =
     , inviteCollabFormEmail : String
     , collabRequestId : String
     , collabRequest : FetchData.FetchData (Core.HttpError UnknownError.Error) CollabRequest.CollabRequest
+    , collabRequestOwner : FetchData.FetchData (Core.HttpError UnknownError.Error) Account.AccountData
     }
 
 
@@ -30,6 +32,7 @@ init session collabRequestId =
       , inviteCollabFormEmail = ""
       , collabRequestId = collabRequestId
       , collabRequest = FetchData.Loading
+      , collabRequestOwner = FetchData.Loading
       }
     , Api.getCollabRequest collabRequestId CompletedGetCollabRequest
     )
@@ -38,17 +41,22 @@ init session collabRequestId =
 view : Model -> { title : String, content : Html.Html Msg }
 view model =
     { title = "Browse Collab Request"
-    , content = renderFetchCollabRequest (Session.viewer model.session) model.inviteCollabFormError model.collabRequest model.inviteCollabFormEmail
+    , content =
+        renderFetchCollabRequest
+            (Session.user model.session)
+            model.inviteCollabFormError
+            model.collabRequest
+            model.inviteCollabFormEmail
     }
 
 
 renderFetchCollabRequest :
-    Maybe Viewer.Viewer
+    Maybe User
     -> FormError.Error
     -> FetchData.FetchData (Core.HttpError UnknownError.Error) CollabRequest.CollabRequest
     -> String
     -> Html.Html Msg
-renderFetchCollabRequest maybeViewer inviteCollabFormError collabRequestFetch inviteCollabFormEmail =
+renderFetchCollabRequest maybeUser inviteCollabFormError collabRequestFetch inviteCollabFormEmail =
     case collabRequestFetch of
         FetchData.Loading ->
             -- Blank to avoid flashes
@@ -58,16 +66,15 @@ renderFetchCollabRequest maybeViewer inviteCollabFormError collabRequestFetch in
             div [] [ text "Failed to browse this collab request...sorry!" ]
 
         FetchData.Success collabRequest ->
-            renderCollabRequest maybeViewer inviteCollabFormError inviteCollabFormEmail collabRequest
+            renderCollabRequest maybeUser inviteCollabFormError inviteCollabFormEmail collabRequest
 
 
-renderCollabRequest : Maybe Viewer.Viewer -> FormError.Error -> String -> CollabRequest.CollabRequest -> Html.Html Msg
-renderCollabRequest maybeViewer inviteCollabFormError inviteCollabFormEmail collabRequest =
+renderCollabRequest : Maybe User -> FormError.Error -> String -> CollabRequest.CollabRequest -> Html.Html Msg
+renderCollabRequest maybeUser inviteCollabFormError inviteCollabFormEmail collabRequest =
     let
         isOwner =
-            maybeViewer
-                |> Maybe.map Viewer.getId
-                |> Maybe.map ((==) collabRequest.userId)
+            maybeUser
+                |> Maybe.map (.id >> (==) collabRequest.userId)
                 |> Maybe.withDefault False
 
         sectionTitle title =

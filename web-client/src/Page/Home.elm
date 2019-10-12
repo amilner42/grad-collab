@@ -4,7 +4,7 @@ module Page.Home exposing (Model, Msg, init, update, view)
 -}
 
 import Api.Api as Api
-import Api.Core as Core exposing (Cred)
+import Api.Core as Core
 import Api.Errors.Form as FormError
 import Api.Errors.Unknown as UnknownError
 import Browser.Navigation as Nav
@@ -16,7 +16,7 @@ import Html.Events exposing (..)
 import RemoteData exposing (RemoteData)
 import Route
 import Session exposing (Session)
-import Viewer
+import User exposing (User)
 
 
 
@@ -31,7 +31,7 @@ type alias Model =
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    case Session.viewer session of
+    case Session.user session of
         Nothing ->
             ( { session = session, collabRequests = RemoteData.NotAsked }
             , Cmd.none
@@ -51,11 +51,11 @@ view : Model -> { title : String, content : Html Msg }
 view model =
     { title = "Home"
     , content =
-        case Session.viewer model.session of
+        case Session.user model.session of
             Nothing ->
                 renderLandingPage
 
-            Just viewer ->
+            Just _ ->
                 renderHomePage model.collabRequests
     }
 

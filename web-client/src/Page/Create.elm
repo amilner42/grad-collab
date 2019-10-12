@@ -10,7 +10,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Route
 import Session exposing (Session)
-import Viewer exposing (Viewer)
+import User exposing (User)
 
 
 
@@ -41,19 +41,19 @@ init session =
 view : Model -> { title : String, content : Html.Html Msg }
 view model =
     let
-        maybeViewer =
-            Session.viewer model.session
+        maybeUser =
+            Session.user model.session
 
         crFormData =
             model.collabRequestFormData
     in
     { title = "Create"
     , content =
-        case maybeViewer of
+        case maybeUser of
             Nothing ->
                 renderLoggedOutCreatePage
 
-            Just viewer ->
+            Just _ ->
                 section
                     [ class "section" ]
                     [ div

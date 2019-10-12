@@ -1,33 +1,22 @@
-module Session exposing (Session(..), cred, fromViewer, navKey, viewer)
+module Session exposing (Session(..), navKey, user)
 
-{-| A session contains a `Nav.Key` and a `Viewer.Viewer` if you are logged-in.
+{-| A session contains a `Nav.Key` and a `User.User` if you are logged-in.
 -}
 
-import Api.Core as Core exposing (Cred)
 import Browser.Navigation as Nav
-import Viewer exposing (Viewer)
+import User exposing (User)
 
 
 type Session
-    = LoggedIn Nav.Key Viewer
+    = LoggedIn Nav.Key User
     | Guest Nav.Key
 
 
-viewer : Session -> Maybe Viewer
-viewer session =
+user : Session -> Maybe User
+user session =
     case session of
-        LoggedIn _ val ->
-            Just val
-
-        Guest _ ->
-            Nothing
-
-
-cred : Session -> Maybe Cred
-cred session =
-    case session of
-        LoggedIn _ val ->
-            Just (Viewer.getCred val)
+        LoggedIn _ theUser ->
+            Just theUser
 
         Guest _ ->
             Nothing
@@ -41,13 +30,3 @@ navKey session =
 
         Guest key ->
             key
-
-
-fromViewer : Nav.Key -> Maybe Viewer -> Session
-fromViewer key maybeViewer =
-    case maybeViewer of
-        Just viewerVal ->
-            LoggedIn key viewerVal
-
-        Nothing ->
-            Guest key

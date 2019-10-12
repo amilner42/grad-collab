@@ -4,7 +4,7 @@ module Page.Login exposing (Model, Msg, init, update, view)
 -}
 
 import Api.Api as Api
-import Api.Core as Core exposing (Cred)
+import Api.Core as Core
 import Api.Errors.Form as FormError
 import Bulma
 import Html exposing (..)
@@ -12,7 +12,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Route exposing (Route)
 import Session exposing (Session)
-import Viewer exposing (Viewer)
+import User exposing (User)
 
 
 
@@ -109,7 +109,7 @@ type Msg
     = SubmittedForm
     | EnteredEmail String
     | EnteredPassword String
-    | CompletedLogin (Result (Core.HttpError FormError.Error) Viewer)
+    | CompletedLogin (Result (Core.HttpError FormError.Error) User)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -138,12 +138,12 @@ update msg model =
             , Cmd.none
             )
 
-        CompletedLogin (Ok viewer) ->
+        CompletedLogin (Ok user) ->
             let
                 navKey =
                     Session.navKey model.session
             in
-            ( { model | session = Session.fromViewer navKey (Just viewer) }
+            ( { model | session = Session.LoggedIn navKey user }
             , Route.replaceUrl navKey Route.Home
             )
 
@@ -213,6 +213,6 @@ trimFields form =
 -- HTTP
 
 
-login : TrimmedForm -> (Result.Result (Core.HttpError FormError.Error) Viewer.Viewer -> msg) -> Cmd.Cmd msg
+login : TrimmedForm -> (Result.Result (Core.HttpError FormError.Error) User -> msg) -> Cmd.Cmd msg
 login (Trimmed form) =
     Api.login { email = form.email, password = form.password }

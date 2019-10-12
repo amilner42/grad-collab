@@ -4,7 +4,7 @@ module Main exposing (main)
 -}
 
 import Api.Api as Api
-import Api.Core as Core exposing (Cred)
+import Api.Core as Core
 import Api.Errors.GetCurrentUser as GetCurrentUserError
 import Api.Errors.Unknown as UnknownError
 import Browser exposing (Document)
@@ -27,7 +27,7 @@ import Page.Register as Register
 import Route exposing (Route)
 import Session exposing (Session)
 import Url exposing (Url)
-import Viewer exposing (Viewer)
+import User exposing (User)
 
 
 
@@ -72,7 +72,7 @@ view model =
                     Page.view
                         { mobileNavbarOpen = model.mobileNavbarOpen
                         , toggleMobileNavbar = ToggledMobileNavbar
-                        , maybeViewer = Session.viewer (toSession model)
+                        , maybeUser = Session.user (toSession model)
                         , activeTab = maybeActiveTab
                         }
                         pageView
@@ -121,7 +121,7 @@ type Msg
     | ChangedUrl Url
     | ClickedLink Browser.UrlRequest
     | ToggledMobileNavbar
-    | CompletedGetUser (Maybe Route) (Result (Core.HttpError GetCurrentUserError.Error) Viewer.Viewer)
+    | CompletedGetUser (Maybe Route) (Result (Core.HttpError GetCurrentUserError.Error) User)
     | CompletedLogout (Result (Core.HttpError UnknownError.Error) ())
     | GotHomeMsg Home.Msg
     | GotLoginMsg Login.Msg
@@ -197,7 +197,7 @@ changeRouteTo maybeRoute model =
 
         Just Route.Login ->
             -- Don't go to login if they are already signed in.
-            case Session.viewer session of
+            case Session.user session of
                 Nothing ->
                     Login.init session
                         |> updatePageModel Login GotLoginMsg model
@@ -209,7 +209,7 @@ changeRouteTo maybeRoute model =
 
         Just Route.Register ->
             -- Don't go to register if they are already signed in.
-            case Session.viewer session of
+            case Session.user session of
                 Nothing ->
                     Register.init session
                         |> updatePageModel Register GotRegisterMsg model
@@ -220,12 +220,12 @@ changeRouteTo maybeRoute model =
                     )
 
         Just Route.Account ->
-            case Session.viewer session of
+            case Session.user session of
                 Nothing ->
                     ( closeMobileNavbar, Route.replaceUrl navKey Route.Home )
 
-                Just viewer ->
-                    Account.init session viewer
+                Just user ->
+                    Account.init session user
                         |> updatePageModel Account GotAccountMsg model
 
         Just Route.Create ->
@@ -287,10 +287,10 @@ update msg model =
             , Cmd.none
             )
 
-        ( CompletedGetUser maybeRoute (Ok viewer), _ ) ->
+        ( CompletedGetUser maybeRoute (Ok user), _ ) ->
             let
                 newSession =
-                    Session.fromViewer navKey (Just viewer)
+                    Session.LoggedIn navKey user
             in
             ( { model | pageModel = Redirect newSession }
             , Route.replaceUrl navKey <| Maybe.withDefault Route.Home maybeRoute

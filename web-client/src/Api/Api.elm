@@ -14,7 +14,7 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as Encode
-import Viewer
+import User exposing (User)
 
 
 standardTimeout =
@@ -25,13 +25,13 @@ standardTimeout =
 -- GET CURRENT LOGGED IN USER
 
 
-getCurrentUser : (Result.Result (Core.HttpError GetCurrentUserError.Error) Viewer.Viewer -> msg) -> Cmd.Cmd msg
+getCurrentUser : (Result.Result (Core.HttpError GetCurrentUserError.Error) User -> msg) -> Cmd.Cmd msg
 getCurrentUser handleResult =
     Core.get
         Endpoint.me
         standardTimeout
         Nothing
-        (Core.expectJsonWithCred handleResult Viewer.decoder GetCurrentUserError.decoder)
+        (Core.expectJson handleResult User.decoder GetCurrentUserError.decoder)
 
 
 
@@ -42,7 +42,7 @@ type alias LoginBody =
     { email : String, password : String }
 
 
-login : LoginBody -> (Result.Result (Core.HttpError FormError.Error) Viewer.Viewer -> msg) -> Cmd.Cmd msg
+login : LoginBody -> (Result.Result (Core.HttpError FormError.Error) User -> msg) -> Cmd.Cmd msg
 login { email, password } handleResult =
     let
         encodedLoginData =
@@ -59,7 +59,7 @@ login { email, password } handleResult =
         (Just (seconds 10))
         Nothing
         body
-        (Core.expectJsonWithCred handleResult Viewer.decoder FormError.decoder)
+        (Core.expectJson handleResult User.decoder FormError.decoder)
 
 
 
@@ -70,7 +70,7 @@ type alias RegisterBody =
     { email : String, password : String }
 
 
-register : RegisterBody -> (Result.Result (Core.HttpError FormError.Error) Viewer.Viewer -> msg) -> Cmd.Cmd msg
+register : RegisterBody -> (Result.Result (Core.HttpError FormError.Error) User -> msg) -> Cmd.Cmd msg
 register { email, password } handleResult =
     let
         encodedUserRegisterData =
@@ -87,7 +87,7 @@ register { email, password } handleResult =
         standardTimeout
         Nothing
         body
-        (Core.expectJsonWithCred handleResult Viewer.decoder FormError.decoder)
+        (Core.expectJson handleResult User.decoder FormError.decoder)
 
 
 

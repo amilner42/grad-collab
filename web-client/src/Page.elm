@@ -3,7 +3,6 @@ module Page exposing (HighlightableTab(..), view)
 {-| This allows you to insert a page, providing the navbar outline common to all pages.
 -}
 
-import Api.Core exposing (Cred)
 import Asset
 import Browser exposing (Document)
 import Html exposing (Html, a, button, div, i, img, li, nav, p, span, strong, text, ul)
@@ -11,13 +10,13 @@ import Html.Attributes exposing (class, classList, href)
 import Html.Events exposing (onClick)
 import Route exposing (Route)
 import Session exposing (Session)
-import Viewer exposing (Viewer)
+import User exposing (User)
 
 
 type alias RenderPageConfig msg =
     { mobileNavbarOpen : Bool
     , toggleMobileNavbar : msg
-    , maybeViewer : Maybe Viewer
+    , maybeUser : Maybe User
     , activeTab : Maybe HighlightableTab
     }
 
@@ -46,11 +45,11 @@ view navConfig { title, content } toMsg =
 
 {-| Render the navbar.
 
-Will have log-in/sign-up or logout buttons according to whether there is a `Viewer`.
+Will have log-in/sign-up or logout buttons according to whether there is a `User`.
 
 -}
 viewNavbar : RenderPageConfig msg -> Html msg
-viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeViewer, activeTab } =
+viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeUser, activeTab } =
     nav [ class "navbar is-info" ]
         [ div
             [ class "navbar-brand" ]
@@ -98,7 +97,7 @@ viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeViewer, activeTab } =
                 ]
             , div
                 [ class "navbar-end" ]
-                (case maybeViewer of
+                (case maybeUser of
                     Nothing ->
                         [ a
                             [ classList
@@ -118,7 +117,7 @@ viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeViewer, activeTab } =
                             [ text "Log in" ]
                         ]
 
-                    Just viewer ->
+                    Just _ ->
                         [ a
                             [ classList
                                 [ ( "navbar-item", True )

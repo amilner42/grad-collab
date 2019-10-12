@@ -12,24 +12,24 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Session exposing (Session)
-import Viewer exposing (Viewer)
+import User exposing (User)
 
 
-{-| TODO remove dup data with session and viewer.
+{-| TODO remove dup data with session and user.
 -}
 type alias Model =
     { session : Session
-    , viewer : Viewer
+    , user : User
     , accountForm : Account.AccountData
     , formError : FormError.Error
     }
 
 
-init : Session -> Viewer -> ( Model, Cmd Msg )
-init session viewer =
+init : Session -> User -> ( Model, Cmd Msg )
+init session user =
     ( { session = session
-      , viewer = viewer
-      , accountForm = Viewer.getAccountData viewer
+      , user = user
+      , accountForm = user.accountData
       , formError = FormError.empty
       }
     , Cmd.none
@@ -42,7 +42,7 @@ view model =
     , content =
         let
             changedAccountData =
-                Viewer.getAccountData model.viewer /= model.accountForm
+                model.user.accountData /= model.accountForm
         in
         div
             [ class "section" ]
@@ -58,7 +58,7 @@ view model =
                                 input
                                     [ class "input"
                                     , disabled True
-                                    , value <| Viewer.getEmail model.viewer
+                                    , value model.user.email
                                     ]
                                     []
                             )
@@ -239,6 +239,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
+        user =
+            model.user
+
         updateAccountForm transform =
             transform model.accountForm
     in
@@ -324,12 +327,12 @@ update msg model =
 
         SubmittedForm ->
             ( model
-            , Api.updateAccount (Viewer.getId model.viewer) model.accountForm CompletedUpdateAccount
+            , Api.updateAccount model.user.id model.accountForm CompletedUpdateAccount
             )
 
         CompletedUpdateAccount (Ok _) ->
             ( { model
-                | viewer = Viewer.setAccountData model.accountForm model.viewer
+                | user = { user | accountData = model.accountForm }
                 , formError = FormError.empty
               }
             , Cmd.none
