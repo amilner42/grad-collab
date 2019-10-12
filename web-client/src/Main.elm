@@ -225,7 +225,7 @@ changeRouteTo maybeRoute model =
                     ( closeMobileNavbar, Route.replaceUrl navKey Route.Home )
 
                 Just viewer ->
-                    Account.init session
+                    Account.init session viewer
                         |> updatePageModel Account GotAccountMsg model
 
         Just Route.Create ->
