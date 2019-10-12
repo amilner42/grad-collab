@@ -59,7 +59,7 @@ view model =
                     [ div
                         [ class "columns is-centered" ]
                         [ div
-                            [ class "column is-half" ]
+                            [ class "column is-half-desktop is-two-thirds-tablet" ]
                             [ div
                                 [ class "box" ]
                                 [ h1 [ class "title has-text-centered" ] [ text "Create a Collaboration Request" ]
@@ -185,7 +185,7 @@ renderLoggedOutCreatePage =
         [ class "section is-large has-text-centered" ]
         [ div
             [ class "title" ]
-            [ text "Who Are You" ]
+            [ text "Tell us About Yourself" ]
         , div
             [ class "subtitle" ]
             [ text "sign up free to instantly start creating collaboration requests" ]

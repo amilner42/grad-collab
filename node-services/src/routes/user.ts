@@ -1,6 +1,6 @@
 import passport from "passport";
 import { FormError } from "../util/form";
-import { User, UserDocument } from "../models/User";
+import { User, UserDocument, prepareForClient } from "../models/User";
 import { Request, Response, NextFunction } from "express";
 import { check, sanitize, validationResult } from "express-validator";
 import "../config/passport";
@@ -18,7 +18,7 @@ export const getCurrentUser = (req: Request, res: Response, next: NextFunction) 
 
     const user = req.user as UserDocument;
 
-    return res.json({ email: user.email, _id: user.id });
+    return res.json(prepareForClient(user));
 };
 
 
@@ -49,7 +49,7 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
         }
         req.logIn(user, (err) => {
             if (err) { return next(err); }
-            return res.json({ email: user.email, _id: user.id });
+            return res.json(prepareForClient(user));
         });
     })(req, res, next);
 };
@@ -81,15 +81,25 @@ export const postRegister = (req: Request, res: Response, next: NextFunction) =>
 
     const errors = validationResult(req);
 
-    console.log(`err: ${JSON.stringify(errors)}`);
-
     if (!errors.isEmpty()) {
         return res.status(403).json(errors.mapped());
     }
 
     const user = new User({
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+
+        name: "",
+        field: "",
+        specialization: "",
+        currentAvailability: "",
+        supervisorEmail: "",
+        researchExperience: "",
+        university: "",
+        degreesHeld: "",
+        shortBio: "",
+        linkedInUrl: "",
+        researchPapers: ""
     });
 
     User.findOne({ email: req.body.email }, (err, existingUser) => {
@@ -106,7 +116,7 @@ export const postRegister = (req: Request, res: Response, next: NextFunction) =>
                 if (err) {
                     return next(err);
                 }
-                return res.json({ email: user.email, _id: user.id });
+                return res.json(prepareForClient(user));
             });
         });
     });
@@ -149,7 +159,6 @@ export const patchUpdateUser = (req: Request, res: Response, next: NextFunction)
     return User.update({ _id: userId }, updateFields).exec()
     .then((val) => {
 
-        console.log(`a: ${JSON.stringify(val)}`)
         if (val.nModified !== 1 || val.ok !== 1) {
             return next("Failed to update");
         }
@@ -159,7 +168,7 @@ export const patchUpdateUser = (req: Request, res: Response, next: NextFunction)
     .catch((err) => {
         return next(err);
     });
-}
+};
 
 
 // /**

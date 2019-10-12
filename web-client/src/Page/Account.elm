@@ -29,7 +29,7 @@ init : Session -> Viewer -> ( Model, Cmd Msg )
 init session viewer =
     ( { session = session
       , viewer = viewer
-      , accountForm = Account.emptyData
+      , accountForm = Viewer.getAccountData viewer
       , formError = FormError.empty
       }
     , Cmd.none
@@ -40,6 +40,10 @@ view : Model -> { title : String, content : Html.Html Msg }
 view model =
     { title = "Browse"
     , content =
+        let
+            changedAccountData =
+                Viewer.getAccountData model.viewer /= model.accountForm
+        in
         div
             [ class "section" ]
             [ div
@@ -58,7 +62,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "email" model.formError)
                             (Just "Email")
                         , Bulma.formControl
                             (\hasError ->
@@ -70,7 +74,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "name" model.formError)
                             (Just "Name")
                         , Bulma.formControl
                             (\hasError ->
@@ -82,8 +86,8 @@ view model =
                                     ]
                                     []
                             )
-                            []
-                            (Just "LinkedIn Profile")
+                            (FormError.getErrorForField "linkedInUrl" model.formError)
+                            (Just "LinkedIn Url")
                         , Bulma.formControl
                             (\hasError ->
                                 input
@@ -94,7 +98,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "field" model.formError)
                             (Just "Field")
                         , Bulma.formControl
                             (\hasError ->
@@ -106,7 +110,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "specialization" model.formError)
                             (Just "Specialization")
                         , Bulma.formControl
                             (\hasError ->
@@ -131,7 +135,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "degreesHeld" model.formError)
                             (Just "Degrees Held")
                         , Bulma.formControl
                             (\hasError ->
@@ -143,7 +147,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "currentAvailability" model.formError)
                             (Just "Current Availability")
                         , Bulma.formControl
                             (\hasError ->
@@ -155,7 +159,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "supervisorEmail" model.formError)
                             (Just "Supervisor Email")
                         , Bulma.formControl
                             (\hasError ->
@@ -168,7 +172,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "shortBio" model.formError)
                             (Just "Short Bio")
                         , Bulma.formControl
                             (\hasError ->
@@ -181,7 +185,7 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "researchPapers" model.formError)
                             (Just "Research Papers")
                         , Bulma.formControl
                             (\hasError ->
@@ -194,13 +198,20 @@ view model =
                                     ]
                                     []
                             )
-                            []
+                            (FormError.getErrorForField "researchExperience" model.formError)
                             (Just "Research Experience")
-                        , button
-                            [ class "button button is-success is-fullwidth"
-                            , onClick SubmittedForm
+                        , p
+                            [ class "title is-size-7 has-text-danger has-text-centered" ]
+                            (List.map text model.formError.entire)
+                        , div
+                            [ class "buttons is-right" ]
+                            [ button
+                                [ class "button is-success"
+                                , disabled <| not changedAccountData
+                                , onClick SubmittedForm
+                                ]
+                                [ text "save changes" ]
                             ]
-                            [ text "Update Account" ]
                         ]
                     ]
                 ]
@@ -317,7 +328,12 @@ update msg model =
             )
 
         CompletedUpdateAccount (Ok _) ->
-            ( model, Cmd.none )
+            ( { model
+                | viewer = Viewer.setAccountData model.accountForm model.viewer
+                , formError = FormError.empty
+              }
+            , Cmd.none
+            )
 
-        CompletedUpdateAccount (Err err) ->
-            ( model, Cmd.none )
+        CompletedUpdateAccount (Err httpErr) ->
+            ( { model | formError = FormError.fromHttpError httpErr }, Cmd.none )

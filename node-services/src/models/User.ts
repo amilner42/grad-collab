@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt-nodejs";
 import mongoose from "mongoose";
+import R from "ramda";
+
 
 export type UserDocument = mongoose.Document & {
     email: string;
@@ -62,5 +64,25 @@ const comparePassword: comparePasswordFunction = function (candidatePassword, cb
 };
 
 userSchema.methods.comparePassword = comparePassword;
+
+
+export const prepareForClient = (user: UserDocument) => {
+    return R.pick([
+        "_id",
+        "email",
+        "name",
+        "field",
+        "specialization",
+        "currentAvailability",
+        "supervisorEmail",
+        "researchExperience",
+        "university",
+        "degreesHeld",
+        "shortBio",
+        "linkedInUrl",
+        "researchPapers"
+    ], user);
+};
+
 
 export const User = mongoose.model<UserDocument>("User", userSchema);

@@ -1,5 +1,7 @@
-module Account exposing (AccountData, emptyData, encode)
+module Account exposing (AccountData, decoder, emptyData, encode)
 
+import Json.Decode as Decode
+import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Json.Encode as Encode
 
 
@@ -49,3 +51,19 @@ encode accountData =
         , ( "linkedInUrl", Encode.string accountData.linkedInUrl )
         , ( "researchPapers", Encode.string accountData.researchPapers )
         ]
+
+
+decoder : Decode.Decoder AccountData
+decoder =
+    Decode.succeed AccountData
+        |> required "name" Decode.string
+        |> required "field" Decode.string
+        |> required "specialization" Decode.string
+        |> required "currentAvailability" Decode.string
+        |> required "supervisorEmail" Decode.string
+        |> required "researchExperience" Decode.string
+        |> required "university" Decode.string
+        |> required "degreesHeld" Decode.string
+        |> required "shortBio" Decode.string
+        |> required "linkedInUrl" Decode.string
+        |> required "researchPapers" Decode.string

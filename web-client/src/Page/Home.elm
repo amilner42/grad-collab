@@ -168,7 +168,7 @@ renderLandingPage =
                         [ text "Welcome" ]
                     , h2
                         [ class "subtitle has-text-centered" ]
-                        [ text "join the growing network of academic collaborators" ]
+                        [ text "collaborating easily and effectively" ]
                     ]
                 ]
             ]
