@@ -46,7 +46,7 @@ view model =
                     [ class "column is-half-desktop is-two-thirds-tablet" ]
                     [ div
                         [ class "box" ]
-                        [ div [ class "title" ] [ text "Account Information" ]
+                        [ div [ class "title has-text-centered" ] [ text "Account Information" ]
                         , Bulma.formControl
                             (\hasError ->
                                 input

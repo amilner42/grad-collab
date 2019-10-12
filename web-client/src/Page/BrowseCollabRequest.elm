@@ -90,89 +90,92 @@ renderCollabRequest maybeViewer inviteCollabFormError inviteCollabFormEmail coll
     in
     div
         [ class "columns is-centered" ]
-        [ div [ class "column is-half has-text-centered" ] <|
-            [ if isOwner then
-                div
-                    [ class "section is-small" ]
-                    [ sectionTitle "Collaborator Outreach"
-                    , div
-                        [ class "content" ]
-                        [ if List.isEmpty collabRequest.invitedCollabs then
-                            text "Invite a collaborator to join on your project."
+        [ div [ class "column is-half-desktop is-two-thirds-tablet has-text-centered" ] <|
+            [ div
+                [ classList [ ( "section is-small", True ), ( "is-hidden", not isOwner ) ]
+                , style "padding-bottom" "0px"
+                ]
+                [ sectionTitle "Collaborator Outreach"
+                , div
+                    [ class "content" ]
+                    [ if List.isEmpty collabRequest.invitedCollabs then
+                        text "Invite a collaborator to join on your project."
 
-                          else
-                            table [ class "table is-bordered is-striped is-narrow is-hoverable is-fullwidth" ] <|
-                                [ thead
-                                    []
-                                    [ tr
-                                        []
-                                        [ th
-                                            []
-                                            [ text "Invited Collabs" ]
-                                        ]
-                                    ]
-                                ]
-                                    ++ (collabRequest.invitedCollabs
-                                            |> List.map
-                                                (\collabEmail ->
-                                                    tr
-                                                        []
-                                                        [ td
-                                                            []
-                                                            [ text collabEmail ]
-                                                        ]
-                                                )
-                                       )
-                        ]
-                    , Bulma.formControl
-                        (\hasError ->
-                            input
-                                [ classList
-                                    [ ( "input", True )
-                                    , ( "is-danger", hasError )
-                                    ]
-                                , placeholder "Eg. gradstudentemail@uni.com"
-                                , value inviteCollabFormEmail
-                                , onInput EnteredInviteCollabEmail
-                                ]
+                      else
+                        table [ class "table is-bordered is-striped is-narrow is-hoverable is-fullwidth" ] <|
+                            [ thead
                                 []
-                        )
-                        (FormError.getErrorForField "invitedCollabEmail" inviteCollabFormError)
-                        Nothing
-                    , p
-                        [ class "title is-size-7 has-text-danger has-text-centered" ]
-                        (List.map text <| inviteCollabFormError.entire)
-                    , button
-                        [ class "button is-success is-medium"
-                        , onClick SubmittedForm
-                        ]
-                        [ text "invite" ]
+                                [ tr
+                                    []
+                                    [ th
+                                        []
+                                        [ text "Invited Collabs" ]
+                                    ]
+                                ]
+                            ]
+                                ++ (collabRequest.invitedCollabs
+                                        |> List.map
+                                            (\collabEmail ->
+                                                tr
+                                                    []
+                                                    [ td
+                                                        []
+                                                        [ text collabEmail ]
+                                                    ]
+                                            )
+                                   )
                     ]
+                , Bulma.formControl
+                    (\hasError ->
+                        input
+                            [ classList
+                                [ ( "input", True )
+                                , ( "is-danger", hasError )
+                                ]
+                            , placeholder "Eg. gradstudentemail@uni.com"
+                            , value inviteCollabFormEmail
+                            , onInput EnteredInviteCollabEmail
+                            ]
+                            []
+                    )
+                    (FormError.getErrorForField "invitedCollabEmail" inviteCollabFormError)
+                    Nothing
+                , p
+                    [ class "title is-size-7 has-text-danger has-text-centered" ]
+                    (List.map text <| inviteCollabFormError.entire)
+                , button
+                    [ class "button is-success is-medium"
+                    , onClick SubmittedForm
+                    ]
+                    [ text "invite" ]
+                ]
+            , div
+                [ class "section is-small" ]
+                [ div [ class "box" ] <|
+                    [ sectionTitle "Collaboration Request Information"
+                    , singleFieldTitle "Field"
+                    , singleFieldContent collabRequest.field
+                    , singleFieldTitle "Subject"
+                    , singleFieldContent collabRequest.subject
+                    , singleFieldTitle "Projct Impact Summary"
+                    , singleFieldContent collabRequest.projectImpactSummary
+                    , singleFieldTitle "Expected Tasks"
+                    , singleFieldContent collabRequest.expectedTasks
+                    , singleFieldTitle "Expected Time"
+                    , singleFieldContent collabRequest.expectedTime
+                    , singleFieldTitle "Offer"
+                    , singleFieldContent collabRequest.offer
+                    ]
+                        ++ (if String.isEmpty collabRequest.additionalInfo then
+                                []
 
-              else
-                div [ style "height" "50px" ] []
-            , sectionTitle "Collaboration Request Information"
-            , singleFieldTitle "Field"
-            , singleFieldContent collabRequest.field
-            , singleFieldTitle "Subject"
-            , singleFieldContent collabRequest.subject
-            , singleFieldTitle "Projct Impact Summary"
-            , singleFieldContent collabRequest.projectImpactSummary
-            , singleFieldTitle "Expected Tasks"
-            , singleFieldContent collabRequest.expectedTasks
-            , singleFieldTitle "Expected Time"
-            , singleFieldContent collabRequest.expectedTime
-            , singleFieldTitle "Offer"
-            , singleFieldContent collabRequest.offer
+                            else
+                                [ singleFieldTitle "Additional Info"
+                                , singleFieldContent collabRequest.additionalInfo
+                                ]
+                           )
+                ]
             ]
-                ++ (if String.isEmpty collabRequest.additionalInfo then
-                        []
-
-                    else
-                        [ singleFieldTitle "Additional Info"
-                        , singleFieldContent collabRequest.additionalInfo
-                        ]
-                   )
         ]
 
 
