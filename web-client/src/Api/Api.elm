@@ -1,4 +1,4 @@
-module Api.Api exposing (createCollabRequest, getCollabRequest, getCollabRequests, getCurrentUser, inviteCollab, login, logout, register, updateAccount)
+module Api.Api exposing (createCollabRequest, getCollabRequest, getCollabRequestWithOwner, getCollabRequests, getCurrentUser, inviteCollab, login, logout, register, updateAccount)
 
 {-| This module contains the `Cmd.Cmd`s to access API routes.
 -}
@@ -124,18 +124,35 @@ createCollabRequest collabRequestData handleResult =
 -- GET COLLAB REQUEST
 
 
-getCollabRequest : String -> (Result.Result (Core.HttpError UnknownError.Error) CollabRequest.CollabRequest -> msg) -> Cmd.Cmd msg
+getCollabRequest :
+    String
+    -> (Result.Result (Core.HttpError UnknownError.Error) CollabRequest.CollabRequest -> msg)
+    -> Cmd.Cmd msg
 getCollabRequest collabRequestId handleResult =
     Core.get
-        (Endpoint.collabRequest collabRequestId)
+        (Endpoint.collabRequest collabRequestId False)
         standardTimeout
         Nothing
         (Core.expectJson handleResult CollabRequest.decoder UnknownError.decoder)
 
 
+getCollabRequestWithOwner :
+    String
+    -> (Result.Result (Core.HttpError UnknownError.Error) CollabRequest.CollabRequestWithOwner -> msg)
+    -> Cmd.Cmd msg
+getCollabRequestWithOwner collabRequestId handleResult =
+    Core.get
+        (Endpoint.collabRequest collabRequestId True)
+        standardTimeout
+        Nothing
+        (Core.expectJson handleResult CollabRequest.collabRequestWithOwnerDecoder UnknownError.decoder)
+
+
 {-| Gets a users collab-requests.
 -}
-getCollabRequests : (Result.Result (Core.HttpError UnknownError.Error) (List CollabRequest.CollabRequest) -> msg) -> Cmd.Cmd msg
+getCollabRequests :
+    (Result.Result (Core.HttpError UnknownError.Error) (List CollabRequest.CollabRequest) -> msg)
+    -> Cmd.Cmd msg
 getCollabRequests handleResult =
     Core.get
         Endpoint.collabRequests
@@ -164,7 +181,11 @@ inviteCollab collabRequestId invitedCollabEmail handleResult =
 -- UPDATE AN ACCOUNT
 
 
-updateAccount : String -> Account.AccountData -> (Result.Result (Core.HttpError FormError.Error) () -> msg) -> Cmd.Cmd msg
+updateAccount :
+    String
+    -> Account.AccountData
+    -> (Result.Result (Core.HttpError FormError.Error) () -> msg)
+    -> Cmd.Cmd msg
 updateAccount userId accountData handleResult =
     Core.patch
         (Endpoint.user userId)

@@ -4,7 +4,7 @@ module Api.Endpoint exposing (Endpoint, collabRequest, collabRequestInvites, col
 -}
 
 import Http
-import Url.Builder exposing (QueryParameter)
+import Url.Builder exposing (QueryParameter, int)
 
 
 type Endpoint
@@ -65,9 +65,16 @@ collabRequests =
     url [ "collab-requests" ] []
 
 
-collabRequest : String -> Endpoint
-collabRequest collabRequestId =
-    url [ "collab-requests", collabRequestId ] []
+collabRequest : String -> Bool -> Endpoint
+collabRequest collabRequestId withUser =
+    url [ "collab-requests", collabRequestId ]
+        [ int "withUser" <|
+            if withUser then
+                1
+
+            else
+                0
+        ]
 
 
 collabRequestInvites : String -> Endpoint

@@ -1,9 +1,10 @@
-module CollabRequest exposing (CollabRequest, CollabRequestData, decoder, empty, encode)
+module CollabRequest exposing (CollabRequest, CollabRequestData, CollabRequestWithOwner, collabRequestWithOwnerDecoder, decoder, empty, encode)
 
 import Api.Errors.Form as FormError
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Json.Encode as Encode
+import User exposing (User)
 
 
 type alias CollabRequest =
@@ -30,6 +31,12 @@ type alias CollabRequestData =
     , expectedTime : String
     , offer : String
     , additionalInfo : String
+    }
+
+
+type alias CollabRequestWithOwner =
+    { owner : User
+    , collabRequest : CollabRequest
     }
 
 
@@ -83,3 +90,10 @@ decoder =
         |> required "additionalInfo" Decode.string
         |> required "userId" Decode.string
         |> required "invitedCollabs" (Decode.list Decode.string)
+
+
+collabRequestWithOwnerDecoder : Decode.Decoder CollabRequestWithOwner
+collabRequestWithOwnerDecoder =
+    Decode.succeed CollabRequestWithOwner
+        |> required "user" User.decoder
+        |> required "collabRequest" decoder

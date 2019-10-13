@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { check, sanitize } from "express-validator";
-import { UserDocument } from "../models/User";
+import { User, UserDocument, prepareForClient } from "../models/User";
 import { CollabRequest, toHtmlAndTextForEmail } from "../models/CollabRequest";
 import { sendEmail } from "../util/email";
 
@@ -56,13 +56,31 @@ export const postCollabRequest = (req: Request, res: Response, next: NextFunctio
  */
 export const getCollabRequest = (req: Request, res: Response, next: NextFunction) => {
     const collabRequestId = req.params.id;
+    const withUser = req.query.withUser === "1";
 
     CollabRequest.findById(collabRequestId).exec((err, collabRequest) => {
         if (err) {
             return next(err);
         }
 
-        return res.status(200).json(collabRequest);
+        if (!withUser) {
+            return res.status(200).json(collabRequest);
+        }
+
+        User.findById(collabRequest.userId, (err, user) => {
+
+            if (err) {
+                return next(err);
+            }
+
+            const result = {
+                user: prepareForClient(user),
+                collabRequest
+            }
+
+            return res.status(200).json(result);
+        });
+
     });
 };
 
