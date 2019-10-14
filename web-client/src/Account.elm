@@ -1,8 +1,9 @@
-module Account exposing (AccountData, decoder, emptyData, encode)
+module Account exposing (AccountData, blankFields, decoder, emptyData, encode)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Json.Encode as Encode
+import ListUtil
 
 
 type alias AccountData =
@@ -34,6 +35,23 @@ emptyData =
     , linkedInUrl = ""
     , researchPapers = ""
     }
+
+
+blankFields : AccountData -> List String
+blankFields accountData =
+    ListUtil.filterByBool
+        [ ( String.isEmpty accountData.name, "name" )
+        , ( String.isEmpty accountData.field, "field" )
+        , ( String.isEmpty accountData.specialization, "specialization" )
+        , ( String.isEmpty accountData.currentAvailability, "currentAvailability" )
+        , ( String.isEmpty accountData.supervisorEmail, "supervisorEmail" )
+        , ( String.isEmpty accountData.researchExperience, "researchExperience" )
+        , ( String.isEmpty accountData.university, "university" )
+        , ( String.isEmpty accountData.degreesHeld, "degreesHeld" )
+        , ( String.isEmpty accountData.shortBio, "shortBio" )
+        , ( String.isEmpty accountData.linkedInUrl, "linkedInUrl" )
+        , ( String.isEmpty accountData.researchPapers, "researchPapers" )
+        ]
 
 
 encode : AccountData -> Encode.Value

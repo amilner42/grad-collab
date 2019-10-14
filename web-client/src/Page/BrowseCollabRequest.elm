@@ -1,5 +1,6 @@
 module Page.BrowseCollabRequest exposing (Model, Msg, init, update, view)
 
+import Account
 import Api.Api as Api
 import Api.Core as Core
 import Api.Errors.Form as FormError
@@ -70,21 +71,26 @@ renderFetchCollabRequest maybeUser inviteCollabFormError collabRequestWithOwnerF
 renderCollabRequestPage : Maybe User -> FormError.Error -> String -> CollabRequest.CollabRequestWithOwner -> Html.Html Msg
 renderCollabRequestPage maybeUser inviteCollabFormError inviteCollabFormEmail collabRequestWithOwner =
     let
-        isOwner =
+        currentUserIsOwner =
             maybeUser
                 |> Maybe.map (.id >> (==) collabRequestWithOwner.collabRequest.userId)
                 |> Maybe.withDefault False
     in
     div [] <|
         ListUtil.filterByBool
-            [ ( isOwner
+            [ ( currentUserIsOwner
               , renderOwnerEmailHelpPanel
                     { invitedCollabs = collabRequestWithOwner.collabRequest.invitedCollabs
                     , inviteCollabFormEmail = inviteCollabFormEmail
                     , inviteCollabFormError = inviteCollabFormError
                     }
               )
-            , ( True, renderCollabRequestWithOwnerPanel collabRequestWithOwner )
+            , ( True
+              , renderCollabRequestWithOwnerPanel
+                    { collabRequestWithOwner = collabRequestWithOwner
+                    , currentUserIsOwner = currentUserIsOwner
+                    }
+              )
             ]
 
 
@@ -165,13 +171,23 @@ renderOwnerEmailHelpPanel config =
         ]
 
 
-renderCollabRequestWithOwnerPanel : CollabRequest.CollabRequestWithOwner -> Html Msg
-renderCollabRequestWithOwnerPanel { collabRequest, owner } =
+type alias RenderCollabRequestWithOwnerPanelConfig =
+    { collabRequestWithOwner : CollabRequest.CollabRequestWithOwner
+    , currentUserIsOwner : Bool
+    }
+
+
+renderCollabRequestWithOwnerPanel : RenderCollabRequestWithOwnerPanelConfig -> Html Msg
+renderCollabRequestWithOwnerPanel config =
+    let
+        { owner, collabRequest } =
+            config.collabRequestWithOwner
+    in
     div
         [ class "columns", style "padding" "1.5rem 1.5rem" ]
         [ div
             [ class "column is-6 has-text-centered" ]
-            [ renderOwnerPanel owner ]
+            [ renderOwnerPanel { owner = owner, currentUserIsOwner = config.currentUserIsOwner } ]
         , div
             [ class "column is-6 has-text-centered" ]
             [ renderCollabRequestPanel collabRequest ]
@@ -202,38 +218,63 @@ singleFieldContent body =
         )
 
 
-renderOwnerPanel : User -> Html Msg
-renderOwnerPanel { accountData, email } =
-    -- TODO handle rendering when they have blank fields
+type alias RenderOwnerPanelConfig =
+    { owner : User
+    , currentUserIsOwner : Bool
+    }
+
+
+renderOwnerPanel : RenderOwnerPanelConfig -> Html Msg
+renderOwnerPanel { owner, currentUserIsOwner } =
+    let
+        accountData =
+            owner.accountData
+
+        blankAccountDataFields =
+            Account.blankFields accountData
+
+        ownerProfileCompletenessMessage =
+            if List.isEmpty blankAccountDataFields then
+                p
+                    [ class "content has-text-success" ]
+                    [ text "your profile is complete, this will help get good collaborators" ]
+
+            else
+                p
+                    [ class "content has-text-danger" ]
+                    [ text "your profile is incomplete, this will deter collaborators" ]
+    in
     div
         []
         [ div [ class "box" ] <|
-            [ sectionTitle "Collaborator"
-            , singleFieldTitle "Email"
-            , singleFieldContent email
-            , singleFieldTitle "Supervisor Email"
-            , singleFieldContent accountData.supervisorEmail
-            , singleFieldTitle "Name"
-            , singleFieldContent accountData.name
-            , singleFieldTitle "LinkedIn Profile"
-            , singleFieldContent accountData.linkedInUrl
-            , singleFieldTitle "Field"
-            , singleFieldContent accountData.field
-            , singleFieldTitle "Specialization"
-            , singleFieldContent accountData.specialization
-            , singleFieldTitle "University"
-            , singleFieldContent accountData.university
-            , singleFieldTitle "Degrees Held"
-            , singleFieldContent accountData.degreesHeld
-            , singleFieldTitle "Current Availibility"
-            , singleFieldContent accountData.currentAvailability
-            , singleFieldTitle "Short Bio"
-            , singleFieldContent accountData.shortBio
-            , singleFieldTitle "Research Papers"
-            , singleFieldContent accountData.researchPapers
-            , singleFieldTitle "Research Experience"
-            , singleFieldContent accountData.researchExperience
-            ]
+            ListUtil.filterByBool
+                [ ( True, sectionTitle "Collaborator" )
+                , ( currentUserIsOwner, ownerProfileCompletenessMessage )
+                , ( True, singleFieldTitle "Email" )
+                , ( True, singleFieldContent owner.email )
+                , ( not <| String.isEmpty accountData.supervisorEmail, singleFieldTitle "Supervisor Email" )
+                , ( not <| String.isEmpty accountData.supervisorEmail, singleFieldContent accountData.supervisorEmail )
+                , ( not <| String.isEmpty accountData.name, singleFieldTitle "Name" )
+                , ( not <| String.isEmpty accountData.name, singleFieldContent accountData.name )
+                , ( not <| String.isEmpty accountData.linkedInUrl, singleFieldTitle "LinkedIn Profile" )
+                , ( not <| String.isEmpty accountData.linkedInUrl, singleFieldContent accountData.linkedInUrl )
+                , ( not <| String.isEmpty accountData.field, singleFieldTitle "Field" )
+                , ( not <| String.isEmpty accountData.field, singleFieldContent accountData.field )
+                , ( not <| String.isEmpty accountData.specialization, singleFieldTitle "Specialization" )
+                , ( not <| String.isEmpty accountData.specialization, singleFieldContent accountData.specialization )
+                , ( not <| String.isEmpty accountData.university, singleFieldTitle "University" )
+                , ( not <| String.isEmpty accountData.university, singleFieldContent accountData.university )
+                , ( not <| String.isEmpty accountData.degreesHeld, singleFieldTitle "Degrees Held" )
+                , ( not <| String.isEmpty accountData.degreesHeld, singleFieldContent accountData.degreesHeld )
+                , ( not <| String.isEmpty accountData.currentAvailability, singleFieldTitle "Current Availibility" )
+                , ( not <| String.isEmpty accountData.currentAvailability, singleFieldContent accountData.currentAvailability )
+                , ( not <| String.isEmpty accountData.shortBio, singleFieldTitle "Short Bio" )
+                , ( not <| String.isEmpty accountData.shortBio, singleFieldContent accountData.shortBio )
+                , ( not <| String.isEmpty accountData.researchPapers, singleFieldTitle "Research Papers" )
+                , ( not <| String.isEmpty accountData.researchPapers, singleFieldContent accountData.researchPapers )
+                , ( not <| String.isEmpty accountData.researchExperience, singleFieldTitle "Research Experience" )
+                , ( not <| String.isEmpty accountData.researchExperience, singleFieldContent accountData.researchExperience )
+                ]
         ]
 
 
