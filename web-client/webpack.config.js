@@ -15,6 +15,9 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const DEV_API_URL = "http://localhost:3001";
 const PROD_API_URL = "https://api.vivadoc.io:3001";
 
+const DEV_WEB_URL = "http://localhost:3000";
+const PROD_WEB_URL = "https://amilner42.github.io/grad-collab";
+
 var MODE =
     process.env.npm_lifecycle_event === "prod" ? "production" : "development";
 var filename = MODE == "production" ? "[name]-[hash].js" : "index.js";
@@ -105,7 +108,13 @@ if (MODE === "development") {
                                 replacement: function (match, p1, offset, string) {
                                    return DEV_API_URL;
                                 }
-                           }
+                           },
+                           {
+                               pattern: /__WEBPACK_CONSTANT_WEB_BASE_URL__/g,
+                               replacement: function (match, p1, offset, string) {
+                                  return DEV_WEB_URL;
+                               }
+                          }
                        ]
                    })
                 },
@@ -173,7 +182,13 @@ if (MODE === "production") {
                                 replacement: function (match, p1, offset, string) {
                                    return PROD_API_URL;
                                 }
-                           }
+                           },
+                           {
+                               pattern: /__WEBPACK_CONSTANT_WEB_BASE_URL__/g,
+                               replacement: function (match, p1, offset, string) {
+                                  return PROD_WEB_URL;
+                               }
+                          }
                        ]
                    })
                 },

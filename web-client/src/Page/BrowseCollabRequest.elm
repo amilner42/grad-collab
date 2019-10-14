@@ -5,6 +5,7 @@ import Api.Api as Api
 import Api.Core as Core
 import Api.Errors.Form as FormError
 import Api.Errors.Unknown as UnknownError
+import AppLinks
 import Bulma
 import CollabRequest
 import FetchData
@@ -18,8 +19,9 @@ import User exposing (User)
 
 type alias Model =
     { session : Session
-    , inviteCollabFormError : FormError.Error
-    , inviteCollabFormEmail : String
+    , inviteCollabName : String
+    , inviteCollabPersonalMessage : String
+    , inviteCollabShortSubjectTopic : String
     , collabRequestId : String
     , collabRequestWithOwner : FetchData.FetchData (Core.HttpError UnknownError.Error) CollabRequest.CollabRequestWithOwner
     }
@@ -28,8 +30,9 @@ type alias Model =
 init : Session -> String -> ( Model, Cmd Msg )
 init session collabRequestId =
     ( { session = session
-      , inviteCollabFormError = FormError.empty
-      , inviteCollabFormEmail = ""
+      , inviteCollabName = ""
+      , inviteCollabPersonalMessage = ""
+      , inviteCollabShortSubjectTopic = ""
       , collabRequestId = collabRequestId
       , collabRequestWithOwner = FetchData.Loading
       }
@@ -43,19 +46,21 @@ view model =
     , content =
         renderFetchCollabRequest
             (Session.user model.session)
-            model.inviteCollabFormError
             model.collabRequestWithOwner
-            model.inviteCollabFormEmail
+            model.inviteCollabName
+            model.inviteCollabPersonalMessage
+            model.inviteCollabShortSubjectTopic
     }
 
 
 renderFetchCollabRequest :
     Maybe User
-    -> FormError.Error
     -> FetchData.FetchData (Core.HttpError UnknownError.Error) CollabRequest.CollabRequestWithOwner
     -> String
+    -> String
+    -> String
     -> Html.Html Msg
-renderFetchCollabRequest maybeUser inviteCollabFormError collabRequestWithOwnerFetch inviteCollabFormEmail =
+renderFetchCollabRequest maybeUser collabRequestWithOwnerFetch inviteCollabName inviteCollabPersonalMessage inviteCollabShortSubjectTopic =
     case collabRequestWithOwnerFetch of
         FetchData.Loading ->
             -- Blank to avoid flashes
@@ -65,29 +70,47 @@ renderFetchCollabRequest maybeUser inviteCollabFormError collabRequestWithOwnerF
             div [] [ text "Failed to browse this collab request...sorry!" ]
 
         FetchData.Success collabRequestWithOwner ->
-            renderCollabRequestPage maybeUser inviteCollabFormError inviteCollabFormEmail collabRequestWithOwner
+            renderCollabRequestPage
+                { maybeUser = maybeUser
+                , collabRequestWithOwner = collabRequestWithOwner
+                , inviteCollabName = inviteCollabName
+                , inviteCollabPersonalMessage = inviteCollabPersonalMessage
+                , inviteCollabShortSubjectTopic = inviteCollabShortSubjectTopic
+                }
 
 
-renderCollabRequestPage : Maybe User -> FormError.Error -> String -> CollabRequest.CollabRequestWithOwner -> Html.Html Msg
-renderCollabRequestPage maybeUser inviteCollabFormError inviteCollabFormEmail collabRequestWithOwner =
+type alias RenderCollabRequestPage =
+    { maybeUser : Maybe User
+    , collabRequestWithOwner : CollabRequest.CollabRequestWithOwner
+    , inviteCollabName : String
+    , inviteCollabPersonalMessage : String
+    , inviteCollabShortSubjectTopic : String
+    }
+
+
+renderCollabRequestPage : RenderCollabRequestPage -> Html.Html Msg
+renderCollabRequestPage config =
     let
         currentUserIsOwner =
-            maybeUser
-                |> Maybe.map (.id >> (==) collabRequestWithOwner.collabRequest.userId)
+            config.maybeUser
+                |> Maybe.map (.id >> (==) config.collabRequestWithOwner.collabRequest.userId)
                 |> Maybe.withDefault False
     in
     div [] <|
         ListUtil.filterByBool
             [ ( currentUserIsOwner
               , renderOwnerEmailHelpPanel
-                    { invitedCollabs = collabRequestWithOwner.collabRequest.invitedCollabs
-                    , inviteCollabFormEmail = inviteCollabFormEmail
-                    , inviteCollabFormError = inviteCollabFormError
+                    { inviteCollabName = config.inviteCollabName
+                    , inviteCollabPersonalMessage = config.inviteCollabPersonalMessage
+                    , inviteCollabShortSubjectTopic = config.inviteCollabShortSubjectTopic
+                    , collabRequestId = config.collabRequestWithOwner.collabRequest.id
+                    , ownerName = config.collabRequestWithOwner.owner.accountData.name
+                    , ownerUniversity = config.collabRequestWithOwner.owner.accountData.university
                     }
               )
             , ( True
               , renderCollabRequestWithOwnerPanel
-                    { collabRequestWithOwner = collabRequestWithOwner
+                    { collabRequestWithOwner = config.collabRequestWithOwner
                     , currentUserIsOwner = currentUserIsOwner
                     }
               )
@@ -95,80 +118,170 @@ renderCollabRequestPage maybeUser inviteCollabFormError inviteCollabFormEmail co
 
 
 type alias RenderOwnerEmailHelpSectionConfig =
-    { invitedCollabs : List String
-    , inviteCollabFormEmail : String
-    , inviteCollabFormError : FormError.Error
+    { inviteCollabName : String
+    , inviteCollabPersonalMessage : String
+    , inviteCollabShortSubjectTopic : String
+    , collabRequestId : String
+    , ownerName : String
+    , ownerUniversity : String
     }
 
 
 renderOwnerEmailHelpPanel : RenderOwnerEmailHelpSectionConfig -> Html Msg
 renderOwnerEmailHelpPanel config =
+    let
+        personalMessageExample =
+            "My name is Jane and I am a PhD student researching molecular genetics at UBC and am currently looking into <insert brief topic>. Based on your interests in researching <insert topics they have researched or want to research>, I would be interested in chatting with you for 15 minutes to see if there might be a good fit for collaboration on this project. Would you have time to talk this week?"
+    in
     div
-        [ class "columns is-centered" ]
-        [ div [ class "column is-half-desktop is-two-thirds-tablet has-text-centered" ] <|
+        [ class "columns", style "padding" "1.5rem 1.5rem" ]
+        [ div
+            [ class "column is-12" ]
             [ div
-                [ class "section is-small"
-                , style "padding-bottom" "0px"
-                ]
+                []
                 [ div
                     [ class "box" ]
-                    [ div [ class "title" ] [ text "Collaborator Outreach" ]
+                    [ div [ class "title has-text-centered" ] [ text "Collaborator Outreach Dashboard" ]
                     , div
-                        [ class "content" ]
-                        [ if List.isEmpty config.invitedCollabs then
-                            text "Invite a collaborator to join on your project."
-
-                          else
-                            table [ class "table is-bordered is-striped is-narrow is-hoverable is-fullwidth" ] <|
-                                [ thead
-                                    []
-                                    [ tr
-                                        []
-                                        [ th
-                                            []
-                                            [ text "Invited Collabs" ]
+                        [ class "content", style "white-space" "pre-wrap", style "margin" "50px" ]
+                        [ p [] [ text """Sending emails from your university email account is the recommended approach for finding collaborators.""" ]
+                        , p [ class "title is-5", style "padding-top" "20px" ] [ text "Email Tips" ]
+                        , ul
+                            []
+                            [ li []
+                                [ text "Be clear and concise, three sentences max"
+                                , li [] [ text "Research them, find out if and what will interest them about your proposal" ]
+                                , li [] [ text "Have a call to action" ]
+                                ]
+                            ]
+                        , p [ class "title is-5", style "padding-top" "20px" ] [ text "Example personal message" ]
+                        , p [] [ text personalMessageExample ]
+                        ]
+                    , div
+                        [ class "columns" ]
+                        [ div
+                            [ class "column is-6" ]
+                            [ Bulma.formControl
+                                (\hasError ->
+                                    input
+                                        [ classList
+                                            [ ( "input", True )
+                                            , ( "is-danger", hasError )
+                                            ]
+                                        , placeholder "Solving Dynamic Grid Flow Problems"
+                                        , value config.inviteCollabShortSubjectTopic
+                                        , onInput EnteredInviteCollabShortSubjectTopic
                                         ]
-                                    ]
-                                ]
-                                    ++ (config.invitedCollabs
-                                            |> List.map
-                                                (\collabEmail ->
-                                                    tr
-                                                        []
-                                                        [ td
-                                                            []
-                                                            [ text collabEmail ]
-                                                        ]
-                                                )
-                                       )
-                        ]
-                    , Bulma.formControl
-                        (\hasError ->
-                            input
-                                [ classList
-                                    [ ( "input", True )
-                                    , ( "is-danger", hasError )
-                                    ]
-                                , placeholder "Eg. gradstudentemail@uni.com"
-                                , value config.inviteCollabFormEmail
-                                , onInput EnteredInviteCollabEmail
-                                ]
+                                        []
+                                )
                                 []
-                        )
-                        (FormError.getErrorForField "invitedCollabEmail" config.inviteCollabFormError)
-                        Nothing
-                    , p
-                        [ class "title is-size-7 has-text-danger has-text-centered" ]
-                        (List.map text <| config.inviteCollabFormError.entire)
-                    , button
-                        [ class "button is-success is-medium"
-                        , onClick SubmittedForm
+                                (Just "Short Subject Topic")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    input
+                                        [ classList
+                                            [ ( "input", True )
+                                            , ( "is-danger", hasError )
+                                            ]
+                                        , placeholder "John Doe"
+                                        , value config.inviteCollabName
+                                        , onInput EnteredInviteCollabName
+                                        ]
+                                        []
+                                )
+                                []
+                                (Just "Name of Potential Collaborator")
+                            , Bulma.formControl
+                                (\hasError ->
+                                    textarea
+                                        [ classList
+                                            [ ( "input", True )
+                                            , ( "is-danger", hasError )
+                                            ]
+                                        , style "height" "150px"
+                                        , placeholder <| "Your personal message"
+                                        , value config.inviteCollabPersonalMessage
+                                        , onInput EnteredInviteCollabPersonalMessage
+                                        ]
+                                        []
+                                )
+                                []
+                                (Just "Personal Message")
+                            ]
+                        , div
+                            [ class "column is-6" ]
+                            [ div [ class "label" ] [ text "Email Subject" ]
+                            , singleFieldContent <|
+                                createRecommendedSubject
+                                    config.ownerUniversity
+                                    config.inviteCollabShortSubjectTopic
+                            , div [ class "label" ] [ text "Email Body" ]
+                            , singleFieldContent <|
+                                createRecommendedEmail
+                                    config.ownerName
+                                    config.inviteCollabName
+                                    config.inviteCollabPersonalMessage
+                                    config.collabRequestId
+                            ]
                         ]
-                        [ text "invite" ]
                     ]
                 ]
             ]
         ]
+
+
+createRecommendedSubject : String -> String -> String
+createRecommendedSubject ownerUniversity shortSubjectTopic =
+    let
+        subjectTextPrefix =
+            if String.isEmpty ownerUniversity then
+                "YOUR-UNIVERSITY"
+
+            else
+                ownerUniversity
+
+        subjectTextSuffix =
+            if String.isEmpty shortSubjectTopic then
+                "SHORT-SUBJECT-TOPIC"
+
+            else
+                shortSubjectTopic
+    in
+    subjectTextPrefix ++ " Team Investigating " ++ subjectTextSuffix
+
+
+createRecommendedEmail : String -> String -> String -> String -> String
+createRecommendedEmail fromName toName personalMessage collabRequestId =
+    let
+        inEmailNameText =
+            if String.isEmpty toName then
+                "POTENTIAL-COLLABORATOR-NAME"
+
+            else
+                toName
+
+        inEmailFromNameText =
+            if String.isEmpty fromName then
+                "YOUR-NAME"
+
+            else
+                fromName
+
+        inEmailPersonalMessageText =
+            if String.isEmpty personalMessage then
+                "PERSONAL-MESSAGE"
+
+            else
+                personalMessage
+    in
+    "Hello " ++ inEmailNameText ++ """,
+
+""" ++ inEmailPersonalMessageText ++ """
+
+If you're interested in collaborating with me, you can take a look at my bio and project expectations here: """ ++ AppLinks.linkToBrowseCollabRequest collabRequestId ++ """
+
+Thanks for reading,
+""" ++ inEmailFromNameText
 
 
 type alias RenderCollabRequestWithOwnerPanelConfig =
@@ -211,6 +324,7 @@ singleFieldContent body =
         , style "background-color" "#F6F6F6"
         , style "border-radius" "5px"
         , style "padding" "5px"
+        , style "white-space" "pre-wrap"
         ]
     <|
         (String.split "\n" body
@@ -310,9 +424,9 @@ renderCollabRequestPanel collabRequest =
 
 type Msg
     = CompletedGetCollabRequestWithOwner (Result.Result (Core.HttpError UnknownError.Error) CollabRequest.CollabRequestWithOwner)
-    | EnteredInviteCollabEmail String
-    | SubmittedForm
-    | CompletedInviteCollab String (Result.Result (Core.HttpError FormError.Error) ())
+    | EnteredInviteCollabName String
+    | EnteredInviteCollabPersonalMessage String
+    | EnteredInviteCollabShortSubjectTopic String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -326,31 +440,11 @@ update msg model =
         CompletedGetCollabRequestWithOwner (Err err) ->
             ( { model | collabRequestWithOwner = FetchData.Failure err }, Cmd.none )
 
-        EnteredInviteCollabEmail inviteCollabEmailInput ->
-            ( { model | inviteCollabFormEmail = inviteCollabEmailInput }, Cmd.none )
+        EnteredInviteCollabName inviteCollabNameInput ->
+            ( { model | inviteCollabName = inviteCollabNameInput }, Cmd.none )
 
-        SubmittedForm ->
-            ( model
-            , Api.inviteCollab model.collabRequestId model.inviteCollabFormEmail (CompletedInviteCollab model.inviteCollabFormEmail)
-            )
+        EnteredInviteCollabPersonalMessage inviteCollabPersonalMessageInput ->
+            ( { model | inviteCollabPersonalMessage = inviteCollabPersonalMessageInput }, Cmd.none )
 
-        CompletedInviteCollab invitedCollabEmail (Ok ()) ->
-            ( { model
-                | collabRequestWithOwner =
-                    model.collabRequestWithOwner
-                        |> FetchData.map
-                            (\({ collabRequest } as collabRequestWithOwner) ->
-                                { collabRequestWithOwner
-                                    | collabRequest =
-                                        { collabRequest
-                                            | invitedCollabs = invitedCollabEmail :: collabRequest.invitedCollabs
-                                        }
-                                }
-                            )
-                , inviteCollabFormEmail = ""
-              }
-            , Cmd.none
-            )
-
-        CompletedInviteCollab _ (Err httpErr) ->
-            ( { model | inviteCollabFormError = FormError.fromHttpError httpErr }, Cmd.none )
+        EnteredInviteCollabShortSubjectTopic inviteCollabShortSubjectTopicInput ->
+            ( { model | inviteCollabShortSubjectTopic = inviteCollabShortSubjectTopicInput }, Cmd.none )

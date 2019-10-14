@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, href, pushUrl, replaceUrl)
+module Route exposing (Route(..), fromUrl, href, pushUrl, replaceUrl, routeToString)
 
 {-| A type to represent possible routes with helper functions.
 -}
@@ -74,10 +74,6 @@ fromUrl : Url -> Maybe Route
 fromUrl url =
     { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
         |> Parser.parse parser
-
-
-
--- INTERNAL
 
 
 routeToString : Route -> String
