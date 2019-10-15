@@ -131,7 +131,7 @@ renderOwnerEmailHelpPanel : RenderOwnerEmailHelpSectionConfig -> Html Msg
 renderOwnerEmailHelpPanel config =
     let
         personalMessageExample =
-            "My name is Jane and I am a PhD student researching molecular genetics at UBC and am currently looking into <insert brief topic>. Based on your interests in researching <insert topics they have researched or want to research>, I would be interested in chatting with you for 15 minutes to see if there might be a good fit for collaboration on this project. Would you have time to talk this week?"
+            " My name is Jane and I am a PhD student researching molecular genetics at UBC and am currently looking into <insert brief topic>. We are looking for someone to help us with <insert task>. Would you be interested in chatting briefly this week to see if this is something you would be interested in?"
     in
     div
         [ class "columns", style "padding" "1.5rem 1.5rem" ]
@@ -141,7 +141,7 @@ renderOwnerEmailHelpPanel config =
                 []
                 [ div
                     [ class "box" ]
-                    [ div [ class "title has-text-centered" ] [ text "Collaborator Outreach Dashboard" ]
+                    [ div [ class "title has-text-centered" ] [ text "Task Outreach Dashboard" ]
                     , div
                         [ class "content", style "white-space" "pre-wrap", style "margin" "50px" ]
                         [ p [] [ text """Sending emails from your university email account is the recommended approach for finding collaborators.""" ]
@@ -278,7 +278,7 @@ createRecommendedEmail fromName toName personalMessage taskRequestId =
 
 """ ++ inEmailPersonalMessageText ++ """
 
-If you're interested in collaborating with me, you can take a look at my bio and project expectations here: """ ++ AppLinks.linkToBrowseTaskRequest taskRequestId ++ """
+If you are interest to learn more about the project you can see it at: """ ++ AppLinks.linkToBrowseTaskRequest taskRequestId ++ """
 
 Thanks for reading,
 """ ++ inEmailFromNameText
@@ -362,7 +362,7 @@ renderOwnerPanel { owner, currentUserIsOwner } =
         []
         [ div [ class "box" ] <|
             ListUtil.filterByBool
-                [ ( True, sectionTitle "Collaborator" )
+                [ ( True, sectionTitle "Researcher" )
                 , ( currentUserIsOwner, ownerProfileCompletenessMessage )
                 , ( True, singleFieldTitle "Email" )
                 , ( True, singleFieldContent owner.email )
@@ -395,7 +395,7 @@ renderTaskRequestPanel taskRequest =
     div
         []
         [ div [ class "box" ] <|
-            [ sectionTitle "Project Info"
+            [ sectionTitle "Project"
             , singleFieldTitle "Field"
             , singleFieldContent taskRequest.field
             , singleFieldTitle "Subject"
