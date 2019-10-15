@@ -90,7 +90,7 @@ export const postRegister = (req: Request, res: Response, next: NextFunction) =>
         password: req.body.password,
 
         name: "",
-        field: "",
+        field: null,
         specialization: "",
         currentAvailability: "",
         supervisorEmail: "",
@@ -124,7 +124,7 @@ export const postRegister = (req: Request, res: Response, next: NextFunction) =>
 
 export const patchUpdateUserValidators = [
     check("name").isString(),
-    check("field").isString(),
+    check("field").optional({ nullable: true }).isString(),
     check("specialization").isString(),
     check("currentAvailability").isString(),
     check("supervisorEmail").isString(),
@@ -167,21 +167,3 @@ export const patchUpdateUser = (req: Request, res: Response, next: NextFunction)
         return next(err);
     });
 };
-
-
-// /**
-//  * GET /users/:id
-//  * Gets the public information for a specific user.
-//  */
-// export const  getUser = (req: Request, res: Response, next: NextFunction) => {
-//
-//     const userId = req.params.id;
-//
-//     User.findById(userId, (err, user) => {
-//         if (err) {
-//             return next(err);
-//         }
-//
-//         delete user.password;
-//     });
-// }

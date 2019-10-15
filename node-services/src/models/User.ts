@@ -7,7 +7,7 @@ export type UserDocument = mongoose.Document & {
     email: string;
     password: string;
     name: string;
-    field: string;
+    field: string | null;
     specialization: string;
     currentAvailability: string;
     supervisorEmail: string;

@@ -1,5 +1,6 @@
 module Account exposing (AccountData, blankFields, decoder, emptyData, encode)
 
+import Field exposing (Field)
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Json.Encode as Encode
@@ -8,7 +9,7 @@ import ListUtil
 
 type alias AccountData =
     { name : String
-    , field : String
+    , field : Maybe Field
     , specialization : String
     , currentAvailability : String
     , supervisorEmail : String
@@ -23,7 +24,7 @@ type alias AccountData =
 emptyData : AccountData
 emptyData =
     { name = ""
-    , field = ""
+    , field = Nothing
     , specialization = ""
     , currentAvailability = ""
     , supervisorEmail = ""
@@ -39,7 +40,7 @@ blankFields : AccountData -> List String
 blankFields accountData =
     ListUtil.filterByBool
         [ ( String.isEmpty accountData.name, "name" )
-        , ( String.isEmpty accountData.field, "field" )
+        , ( accountData.field == Nothing, "field" )
         , ( String.isEmpty accountData.specialization, "specialization" )
         , ( String.isEmpty accountData.currentAvailability, "currentAvailability" )
         , ( String.isEmpty accountData.supervisorEmail, "supervisorEmail" )
@@ -55,7 +56,11 @@ encode : AccountData -> Encode.Value
 encode accountData =
     Encode.object
         [ ( "name", Encode.string accountData.name )
-        , ( "field", Encode.string accountData.field )
+        , ( "field"
+          , accountData.field
+                |> Maybe.map Field.encoder
+                |> Maybe.withDefault Encode.null
+          )
         , ( "specialization", Encode.string accountData.specialization )
         , ( "currentAvailability", Encode.string accountData.currentAvailability )
         , ( "supervisorEmail", Encode.string accountData.supervisorEmail )
@@ -71,7 +76,7 @@ decoder : Decode.Decoder AccountData
 decoder =
     Decode.succeed AccountData
         |> required "name" Decode.string
-        |> required "field" Decode.string
+        |> required "field" (Decode.nullable Field.decoder)
         |> required "specialization" Decode.string
         |> required "currentAvailability" Decode.string
         |> required "supervisorEmail" Decode.string

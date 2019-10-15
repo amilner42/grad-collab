@@ -8,6 +8,7 @@ import Api.Api as Api
 import Api.Core as Core
 import Api.Errors.Form as FormError
 import Bulma
+import Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -90,13 +91,36 @@ view model =
                             (Just "LinkedIn Url")
                         , Bulma.formControl
                             (\hasError ->
-                                input
-                                    [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                    , onInput EnteredField
-                                    , value model.accountForm.field
-                                    , placeholder "Computer Science"
+                                div
+                                    [ classList [ ( "select", True ), ( "is-danger", hasError ) ] ]
+                                    [ select
+                                        [ onInput SelectedField ]
+                                        [ option
+                                            [ disabled True
+                                            , hidden True
+                                            , selected (model.accountForm.field == Nothing)
+                                            ]
+                                            [ text "Select Your Field" ]
+                                        , option
+                                            [ selected (model.accountForm.field == Just Field.Biology) ]
+                                            [ text "Biology" ]
+                                        , option
+                                            [ selected (model.accountForm.field == Just Field.Chemistry) ]
+                                            [ text "Chemistry" ]
+                                        , option
+                                            [ selected (model.accountForm.field == Just Field.Physics) ]
+                                            [ text "Physics" ]
+                                        , option
+                                            [ selected (model.accountForm.field == Just Field.Math) ]
+                                            [ text "Math" ]
+                                        , option
+                                            [ selected (model.accountForm.field == Just Field.Stats) ]
+                                            [ text "Stats" ]
+                                        , option
+                                            [ selected (model.accountForm.field == Just Field.ComputerScience) ]
+                                            [ text "Computer Science" ]
+                                        ]
                                     ]
-                                    []
                             )
                             (FormError.getErrorForField "field" model.formError)
                             (Just "Field")
@@ -209,7 +233,7 @@ view model =
 type Msg
     = NoOp
     | EnteredName String
-    | EnteredField String
+    | SelectedField String
     | EnteredSpecialization String
     | EnteredUniversity String
     | EnteredCurrentAvailibility String
@@ -240,8 +264,11 @@ update msg model =
             , Cmd.none
             )
 
-        EnteredField fieldInput ->
-            ( { model | accountForm = updateAccountForm (\accountForm -> { accountForm | field = fieldInput }) }
+        SelectedField selectedField ->
+            ( { model
+                | accountForm =
+                    updateAccountForm (\accountForm -> { accountForm | field = Field.fromString selectedField })
+              }
             , Cmd.none
             )
 

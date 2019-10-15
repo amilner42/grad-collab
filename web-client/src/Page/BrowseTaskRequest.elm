@@ -8,10 +8,12 @@ import Api.Errors.Unknown as UnknownError
 import AppLinks
 import Bulma
 import FetchData
+import Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import ListUtil
+import MaybeUtil
 import Session exposing (Session)
 import TaskRequest
 import User exposing (User)
@@ -372,8 +374,16 @@ renderOwnerPanel { owner, currentUserIsOwner } =
                 , ( not <| String.isEmpty accountData.name, singleFieldContent accountData.name )
                 , ( not <| String.isEmpty accountData.linkedInUrl, singleFieldTitle "LinkedIn Profile" )
                 , ( not <| String.isEmpty accountData.linkedInUrl, singleFieldContent accountData.linkedInUrl )
-                , ( not <| String.isEmpty accountData.field, singleFieldTitle "Field" )
-                , ( not <| String.isEmpty accountData.field, singleFieldContent accountData.field )
+
+                -- TODO fix gross code
+                , ( MaybeUtil.isJust accountData.field, singleFieldTitle "Field" )
+                , ( MaybeUtil.isJust accountData.field
+                  , singleFieldContent <|
+                        (accountData.field
+                            |> Maybe.map Field.toString
+                            |> Maybe.withDefault ""
+                        )
+                  )
                 , ( not <| String.isEmpty accountData.specialization, singleFieldTitle "Specialization" )
                 , ( not <| String.isEmpty accountData.specialization, singleFieldContent accountData.specialization )
                 , ( not <| String.isEmpty accountData.university, singleFieldTitle "University" )
