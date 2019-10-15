@@ -406,12 +406,14 @@ renderTaskRequestPanel taskRequest =
         []
         [ div [ class "box" ] <|
             [ sectionTitle "Project"
-            , singleFieldTitle "Field"
-            , singleFieldContent taskRequest.field
-            , singleFieldTitle "Subject"
-            , singleFieldContent taskRequest.subject
+            , singleFieldTitle "Research Field"
+            , singleFieldContent <| Field.toString taskRequest.researchField
+            , singleFieldTitle "Reserch Subject"
+            , singleFieldContent taskRequest.researchSubject
             , singleFieldTitle "Projct Impact Summary"
             , singleFieldContent taskRequest.projectImpactSummary
+            , singleFieldTitle "Field Requesting Help From"
+            , singleFieldContent <| Field.toString taskRequest.fieldRequestingHelpFrom
             , singleFieldTitle "Expected Tasks and Skills"
             , singleFieldContent taskRequest.expectedTasksAndSkills
             , singleFieldTitle "Reward"

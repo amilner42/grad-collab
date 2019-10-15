@@ -5,9 +5,10 @@ import { TaskRequest } from "../models/TaskRequest";
 
 
 export const postTaskRequestValidators = [
-    check("field", "Field cannot be blank").isLength({min: 1}),
-    check("subject", "Subject cannot be blank").isLength({min: 1}),
+    check("researchField", "Research field cannot be blank").isLength({min: 1}),
+    check("researchSubject", "Research subject cannot be blank").isLength({min: 1}),
     check("projectImpactSummary", "Projct impact summary cannot be blank").isLength({min: 1}),
+    check("fieldRequestingHelpFrom", "Field requesting help from cannot be blank").isLength({min: 1}),
     check("expectedTasksAndSkills", "Expected tasks and skills cannot be blank").isLength({min: 1}),
     check("reward", "Reward cannot be blank").isLength({min: 1}),
 ];
@@ -26,9 +27,10 @@ export const postTaskRequest = (req: Request, res: Response, next: NextFunction)
     const user = req.user as UserDocument;
 
     const taskRequest = new TaskRequest({
-        field: req.body.field,
-        subject: req.body.subject,
+        researchField: req.body.researchField,
+        researchSubject: req.body.researchSubject,
         projectImpactSummary: req.body.projectImpactSummary,
+        fieldRequestingHelpFrom: req.body.fieldRequestingHelpFrom,
         expectedTasksAndSkills: req.body.expectedTasksAndSkills,
         reward: req.body.reward,
         additionalInfo: req.body.additionalInfo,

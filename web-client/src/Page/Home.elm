@@ -9,6 +9,7 @@ import Api.Errors.Form as FormError
 import Api.Errors.Unknown as UnknownError
 import Browser.Navigation as Nav
 import Bulma
+import Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -131,7 +132,7 @@ renderTaskRequestLink taskRequest =
                 ]
                 [ div
                     [ class "level-item level-left has-text-weight-bold" ]
-                    [ text taskRequest.field ]
+                    [ text <| Field.toString taskRequest.researchField ]
                 ]
             , div
                 [ class "level is-mobile"
@@ -141,7 +142,7 @@ renderTaskRequestLink taskRequest =
                 ]
                 [ div
                     [ class "level-item level-left has-text-grey-light" ]
-                    [ text taskRequest.subject ]
+                    [ text taskRequest.researchSubject ]
                 ]
             , div
                 [ style "margin-top" "15px"

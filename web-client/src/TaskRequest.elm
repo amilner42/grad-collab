@@ -1,6 +1,8 @@
 module TaskRequest exposing (TaskRequest, TaskRequestData, TaskRequestWithOwner, decoder, empty, encode, taskRequestWithOwnerDecoder)
 
 import Api.Errors.Form as FormError
+import EncodeUtil
+import Field
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Json.Encode as Encode
@@ -9,10 +11,11 @@ import User exposing (User)
 
 type alias TaskRequest =
     { id : String
-    , field : String
-    , subject : String
+    , researchField : Field.Field
+    , researchSubject : String
     , projectImpactSummary : String
     , expectedTasksAndSkills : String
+    , fieldRequestingHelpFrom : Field.Field
     , reward : String
     , additionalInfo : String
     , userId : String
@@ -20,10 +23,11 @@ type alias TaskRequest =
 
 
 type alias TaskRequestData =
-    { field : String
-    , subject : String
+    { researchField : Maybe Field.Field
+    , researchSubject : String
     , projectImpactSummary : String
     , expectedTasksAndSkills : String
+    , fieldRequestingHelpFrom : Maybe Field.Field
     , reward : String
     , additionalInfo : String
     }
@@ -37,10 +41,11 @@ type alias TaskRequestWithOwner =
 
 empty : TaskRequestData
 empty =
-    { field = ""
-    , subject = ""
+    { researchField = Nothing
+    , researchSubject = ""
     , projectImpactSummary = ""
     , expectedTasksAndSkills = ""
+    , fieldRequestingHelpFrom = Nothing
     , reward = ""
     , additionalInfo = ""
     }
@@ -58,10 +63,11 @@ dataGoodForSubmission taskRequest =
 encode : TaskRequestData -> Encode.Value
 encode taskRequest =
     Encode.object
-        [ ( "field", Encode.string taskRequest.field )
-        , ( "subject", Encode.string taskRequest.subject )
+        [ ( "researchField", EncodeUtil.nullable Field.encoder taskRequest.researchField )
+        , ( "researchSubject", Encode.string taskRequest.researchSubject )
         , ( "projectImpactSummary", Encode.string taskRequest.projectImpactSummary )
         , ( "expectedTasksAndSkills", Encode.string taskRequest.expectedTasksAndSkills )
+        , ( "fieldRequestingHelpFrom", EncodeUtil.nullable Field.encoder taskRequest.fieldRequestingHelpFrom )
         , ( "reward", Encode.string taskRequest.reward )
         , ( "additionalInfo", Encode.string taskRequest.additionalInfo )
         ]
@@ -71,10 +77,11 @@ decoder : Decode.Decoder TaskRequest
 decoder =
     Decode.succeed TaskRequest
         |> required "_id" Decode.string
-        |> required "field" Decode.string
-        |> required "subject" Decode.string
+        |> required "researchField" Field.decoder
+        |> required "researchSubject" Decode.string
         |> required "projectImpactSummary" Decode.string
         |> required "expectedTasksAndSkills" Decode.string
+        |> required "fieldRequestingHelpFrom" Field.decoder
         |> required "reward" Decode.string
         |> required "additionalInfo" Decode.string
         |> required "userId" Decode.string

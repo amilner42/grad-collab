@@ -4,6 +4,7 @@ import Api.Api as Api
 import Api.Core as Core
 import Api.Errors.Form as FormError
 import Bulma
+import Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -65,28 +66,51 @@ view model =
                                 [ h1 [ class "title has-text-centered" ] [ text "Create a Task Request" ]
                                 , Bulma.formControl
                                     (\hasError ->
-                                        input
-                                            [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                            , placeholder "Eg. Computer Science or Biology"
-                                            , onInput EnteredField
-                                            , value crFormData.field
+                                        div
+                                            [ classList [ ( "select", True ), ( "is-danger", hasError ) ] ]
+                                            [ select
+                                                [ onInput SelectedResearchField ]
+                                                [ option
+                                                    [ disabled True
+                                                    , hidden True
+                                                    , selected (crFormData.researchField == Nothing)
+                                                    ]
+                                                    [ text "Select Your Field" ]
+                                                , option
+                                                    [ selected (crFormData.researchField == Just Field.Biology) ]
+                                                    [ text "Biology" ]
+                                                , option
+                                                    [ selected (crFormData.researchField == Just Field.Chemistry) ]
+                                                    [ text "Chemistry" ]
+                                                , option
+                                                    [ selected (crFormData.researchField == Just Field.Physics) ]
+                                                    [ text "Physics" ]
+                                                , option
+                                                    [ selected (crFormData.researchField == Just Field.Math) ]
+                                                    [ text "Math" ]
+                                                , option
+                                                    [ selected (crFormData.researchField == Just Field.Stats) ]
+                                                    [ text "Stats" ]
+                                                , option
+                                                    [ selected (crFormData.researchField == Just Field.ComputerScience) ]
+                                                    [ text "Computer Science" ]
+                                                ]
                                             ]
-                                            []
                                     )
-                                    (FormError.getErrorForField "field" model.taskRequestFormError)
-                                    (Just "Field")
+                                    (FormError.getErrorForField "researchField" model.taskRequestFormError)
+                                    (Just "Research Field")
                                 , Bulma.formControl
                                     (\hasError ->
                                         input
                                             [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
                                             , placeholder "Eg. Machine Learning or Genomics"
-                                            , onInput EnteredSubject
-                                            , value crFormData.subject
+                                            , onInput EnteredResearchSubject
+                                            , value crFormData.researchSubject
                                             ]
                                             []
                                     )
-                                    (FormError.getErrorForField "subject" model.taskRequestFormError)
-                                    (Just "Subject")
+                                    (FormError.getErrorForField "researchSubject" model.taskRequestFormError)
+                                    (Just "Research Subject")
                                 , Bulma.formControl
                                     (\hasError ->
                                         textarea
@@ -100,6 +124,41 @@ view model =
                                     )
                                     (FormError.getErrorForField "projectImpactSummary" model.taskRequestFormError)
                                     (Just "Project Impact Summary")
+                                , Bulma.formControl
+                                    (\hasError ->
+                                        div
+                                            [ classList [ ( "select", True ), ( "is-danger", hasError ) ] ]
+                                            [ select
+                                                [ onInput SelectedFieldRequestingHelpFrom ]
+                                                [ option
+                                                    [ disabled True
+                                                    , hidden True
+                                                    , selected (crFormData.fieldRequestingHelpFrom == Nothing)
+                                                    ]
+                                                    [ text "Select Your Field" ]
+                                                , option
+                                                    [ selected (crFormData.fieldRequestingHelpFrom == Just Field.Biology) ]
+                                                    [ text "Biology" ]
+                                                , option
+                                                    [ selected (crFormData.fieldRequestingHelpFrom == Just Field.Chemistry) ]
+                                                    [ text "Chemistry" ]
+                                                , option
+                                                    [ selected (crFormData.fieldRequestingHelpFrom == Just Field.Physics) ]
+                                                    [ text "Physics" ]
+                                                , option
+                                                    [ selected (crFormData.fieldRequestingHelpFrom == Just Field.Math) ]
+                                                    [ text "Math" ]
+                                                , option
+                                                    [ selected (crFormData.fieldRequestingHelpFrom == Just Field.Stats) ]
+                                                    [ text "Stats" ]
+                                                , option
+                                                    [ selected (crFormData.fieldRequestingHelpFrom == Just Field.ComputerScience) ]
+                                                    [ text "Computer Science" ]
+                                                ]
+                                            ]
+                                    )
+                                    (FormError.getErrorForField "fieldRequestingHelpFrom" model.taskRequestFormError)
+                                    (Just "Field Requesting Help From")
                                 , Bulma.formControl
                                     (\hasError ->
                                         textarea
@@ -172,9 +231,10 @@ renderLoggedOutCreatePage =
 
 
 type Msg
-    = EnteredField String
-    | EnteredSubject String
+    = SelectedResearchField String
+    | EnteredResearchSubject String
     | EnteredProjectImpactSummary String
+    | SelectedFieldRequestingHelpFrom String
     | EnteredExpectedTasksAndSkills String
     | EnteredReward String
     | EnteredAdditionalInfo String
@@ -192,17 +252,28 @@ update msg model =
             { modelIn | taskRequstFormData = updater model.taskRequstFormData }
     in
     case msg of
-        EnteredField fieldInput ->
-            ( model |> updateFormData (\fd -> { fd | field = fieldInput }), Cmd.none )
+        SelectedResearchField selectedResearchField ->
+            ( model |> updateFormData (\fd -> { fd | researchField = Field.fromString selectedResearchField }), Cmd.none )
 
-        EnteredSubject subjectInput ->
-            ( model |> updateFormData (\fd -> { fd | subject = subjectInput }), Cmd.none )
+        EnteredResearchSubject researchSubjectInput ->
+            ( model |> updateFormData (\fd -> { fd | researchSubject = researchSubjectInput }), Cmd.none )
 
         EnteredProjectImpactSummary projectImpactSummaryInput ->
             ( model |> updateFormData (\fd -> { fd | projectImpactSummary = projectImpactSummaryInput }), Cmd.none )
 
         EnteredReward rewardInput ->
             ( model |> updateFormData (\fd -> { fd | reward = rewardInput }), Cmd.none )
+
+        SelectedFieldRequestingHelpFrom selectedFieldRequestingHelpFrom ->
+            ( model
+                |> updateFormData
+                    (\fd ->
+                        { fd
+                            | fieldRequestingHelpFrom = Field.fromString selectedFieldRequestingHelpFrom
+                        }
+                    )
+            , Cmd.none
+            )
 
         EnteredExpectedTasksAndSkills expectedTasksAndSkillsInput ->
             ( model |> updateFormData (\fd -> { fd | expectedTasksAndSkills = expectedTasksAndSkillsInput }), Cmd.none )
