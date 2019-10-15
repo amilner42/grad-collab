@@ -178,28 +178,15 @@ view model =
                             (\hasError ->
                                 textarea
                                     [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                    , onInput EnteredResearchPapers
+                                    , onInput EnteredResearchExperienceAndPapers
                                     , style "height" "100px"
-                                    , value model.accountForm.researchPapers
-                                    , placeholder "List things you have published."
+                                    , value model.accountForm.researchExperienceAndPapers
+                                    , placeholder "List all important research papers and experiences."
                                     ]
                                     []
                             )
-                            (FormError.getErrorForField "researchPapers" model.formError)
-                            (Just "Research Papers")
-                        , Bulma.formControl
-                            (\hasError ->
-                                textarea
-                                    [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                    , onInput EnteredResearchExperience
-                                    , style "height" "100px"
-                                    , value model.accountForm.researchExperience
-                                    , placeholder "List research experience that may not have published a paper."
-                                    ]
-                                    []
-                            )
-                            (FormError.getErrorForField "researchExperience" model.formError)
-                            (Just "Research Experience")
+                            (FormError.getErrorForField "researchExperienceAndPapers" model.formError)
+                            (Just "Research Papers and Experience")
                         , p
                             [ class "title is-size-7 has-text-danger has-text-centered" ]
                             (List.map text model.formError.entire)
@@ -230,8 +217,7 @@ type Msg
     | EnteredShortBio String
     | EnteredLinkedInUrl String
     | EnteredDegreesHeld String
-    | EnteredResearchPapers String
-    | EnteredResearchExperience String
+    | EnteredResearchExperienceAndPapers String
     | SubmittedForm
     | CompletedUpdateAccount (Result (Core.HttpError FormError.Error) ())
 
@@ -309,18 +295,13 @@ update msg model =
             , Cmd.none
             )
 
-        EnteredResearchPapers researchPapersInput ->
+        EnteredResearchExperienceAndPapers researchExperienceAndPapersInput ->
             ( { model
                 | accountForm =
-                    updateAccountForm (\accountForm -> { accountForm | researchPapers = researchPapersInput })
-              }
-            , Cmd.none
-            )
-
-        EnteredResearchExperience researchExperienceInput ->
-            ( { model
-                | accountForm =
-                    updateAccountForm (\accountForm -> { accountForm | researchExperience = researchExperienceInput })
+                    updateAccountForm
+                        (\accountForm ->
+                            { accountForm | researchExperienceAndPapers = researchExperienceAndPapersInput }
+                        )
               }
             , Cmd.none
             )

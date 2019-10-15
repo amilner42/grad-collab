@@ -94,12 +94,11 @@ export const postRegister = (req: Request, res: Response, next: NextFunction) =>
         specialization: "",
         currentAvailability: "",
         supervisorEmail: "",
-        researchExperience: "",
+        researchExperienceAndPapers: "",
         university: "",
         degreesHeld: "",
         shortBio: "",
         linkedInUrl: "",
-        researchPapers: ""
     });
 
     User.findOne({ email: req.body.email }, (err, existingUser) => {
@@ -129,12 +128,11 @@ export const patchUpdateUserValidators = [
     check("specialization").isString(),
     check("currentAvailability").isString(),
     check("supervisorEmail").isString(),
-    check("researchExperience").isString(),
+    check("researchExperienceAndPapers").isString(),
     check("university").isString(),
     check("degreesHeld").isString(),
     check("shortBio").isString(),
     check("linkedInUrl").isString(),
-    check("researchPapers").isString()
 ];
 
 

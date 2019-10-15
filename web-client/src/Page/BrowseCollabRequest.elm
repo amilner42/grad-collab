@@ -384,10 +384,8 @@ renderOwnerPanel { owner, currentUserIsOwner } =
                 , ( not <| String.isEmpty accountData.currentAvailability, singleFieldContent accountData.currentAvailability )
                 , ( not <| String.isEmpty accountData.shortBio, singleFieldTitle "Short Bio" )
                 , ( not <| String.isEmpty accountData.shortBio, singleFieldContent accountData.shortBio )
-                , ( not <| String.isEmpty accountData.researchPapers, singleFieldTitle "Research Papers" )
-                , ( not <| String.isEmpty accountData.researchPapers, singleFieldContent accountData.researchPapers )
-                , ( not <| String.isEmpty accountData.researchExperience, singleFieldTitle "Research Experience" )
-                , ( not <| String.isEmpty accountData.researchExperience, singleFieldContent accountData.researchExperience )
+                , ( not <| String.isEmpty accountData.researchExperienceAndPapers, singleFieldTitle "Research Papers and Experience" )
+                , ( not <| String.isEmpty accountData.researchExperienceAndPapers, singleFieldContent accountData.researchExperienceAndPapers )
                 ]
         ]
 

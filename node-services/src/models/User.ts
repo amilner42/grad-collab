@@ -11,12 +11,11 @@ export type UserDocument = mongoose.Document & {
     specialization: string;
     currentAvailability: string;
     supervisorEmail: string;
-    researchExperience: string;
+    researchExperienceAndPapers: string;
     university: string;
     degreesHeld: string;
     shortBio: string;
     linkedInUrl: string;
-    researchPapers: string;
 
     comparePassword: comparePasswordFunction;
 };
@@ -32,12 +31,11 @@ const userSchema = new mongoose.Schema({
     specialization: String,
     currentAvailability: String,
     supervisorEmail: String,
-    researchExperience: String,
+    researchExperienceAndPapers: String,
     university: String,
     degreesHeld: String,
     shortBio: String,
     linkedInUrl: String,
-    researchPapers: String
 
 }, { timestamps: true });
 
@@ -75,12 +73,11 @@ export const prepareForClient = (user: UserDocument) => {
         "specialization",
         "currentAvailability",
         "supervisorEmail",
-        "researchExperience",
+        "researchExperienceAndPapers",
         "university",
         "degreesHeld",
         "shortBio",
         "linkedInUrl",
-        "researchPapers"
     ], user);
 };
 

@@ -12,12 +12,11 @@ type alias AccountData =
     , specialization : String
     , currentAvailability : String
     , supervisorEmail : String
-    , researchExperience : String
+    , researchExperienceAndPapers : String
     , university : String
     , degreesHeld : String
     , shortBio : String
     , linkedInUrl : String
-    , researchPapers : String
     }
 
 
@@ -28,12 +27,11 @@ emptyData =
     , specialization = ""
     , currentAvailability = ""
     , supervisorEmail = ""
-    , researchExperience = ""
+    , researchExperienceAndPapers = ""
     , university = ""
     , degreesHeld = ""
     , shortBio = ""
     , linkedInUrl = ""
-    , researchPapers = ""
     }
 
 
@@ -45,12 +43,11 @@ blankFields accountData =
         , ( String.isEmpty accountData.specialization, "specialization" )
         , ( String.isEmpty accountData.currentAvailability, "currentAvailability" )
         , ( String.isEmpty accountData.supervisorEmail, "supervisorEmail" )
-        , ( String.isEmpty accountData.researchExperience, "researchExperience" )
+        , ( String.isEmpty accountData.researchExperienceAndPapers, "researchExperienceAndPapers" )
         , ( String.isEmpty accountData.university, "university" )
         , ( String.isEmpty accountData.degreesHeld, "degreesHeld" )
         , ( String.isEmpty accountData.shortBio, "shortBio" )
         , ( String.isEmpty accountData.linkedInUrl, "linkedInUrl" )
-        , ( String.isEmpty accountData.researchPapers, "researchPapers" )
         ]
 
 
@@ -62,12 +59,11 @@ encode accountData =
         , ( "specialization", Encode.string accountData.specialization )
         , ( "currentAvailability", Encode.string accountData.currentAvailability )
         , ( "supervisorEmail", Encode.string accountData.supervisorEmail )
-        , ( "researchExperience", Encode.string accountData.researchExperience )
+        , ( "researchExperienceAndPapers", Encode.string accountData.researchExperienceAndPapers )
         , ( "university", Encode.string accountData.university )
         , ( "degreesHeld", Encode.string accountData.degreesHeld )
         , ( "shortBio", Encode.string accountData.shortBio )
         , ( "linkedInUrl", Encode.string accountData.linkedInUrl )
-        , ( "researchPapers", Encode.string accountData.researchPapers )
         ]
 
 
@@ -79,9 +75,8 @@ decoder =
         |> required "specialization" Decode.string
         |> required "currentAvailability" Decode.string
         |> required "supervisorEmail" Decode.string
-        |> required "researchExperience" Decode.string
+        |> required "researchExperienceAndPapers" Decode.string
         |> required "university" Decode.string
         |> required "degreesHeld" Decode.string
         |> required "shortBio" Decode.string
         |> required "linkedInUrl" Decode.string
-        |> required "researchPapers" Decode.string
