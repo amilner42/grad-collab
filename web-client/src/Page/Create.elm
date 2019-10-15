@@ -62,7 +62,7 @@ view model =
                             [ class "column is-half-desktop is-two-thirds-tablet" ]
                             [ div
                                 [ class "box" ]
-                                [ h1 [ class "title has-text-centered" ] [ text "Create a Collaboration Request" ]
+                                [ h1 [ class "title has-text-centered" ] [ text "Create a Task Request" ]
                                 , Bulma.formControl
                                     (\hasError ->
                                         input
@@ -118,7 +118,7 @@ view model =
                                         textarea
                                             [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
                                             , style "min-height" "100px"
-                                            , placeholder "What can you offer upon successful collaboration? Eg. 3rd name on paper if it gets published."
+                                            , placeholder "What can you offer upon successful completion of the task? Eg. 3rd name on paper if it gets published."
                                             , onInput EnteredReward
                                             , value crFormData.reward
                                             ]
@@ -146,7 +146,7 @@ view model =
                                     [ class "button button is-success is-fullwidth"
                                     , onClick SubmittedForm
                                     ]
-                                    [ text "Submit Collaboration Request" ]
+                                    [ text "Submit Task Request" ]
                                 ]
                             ]
                         ]
@@ -163,7 +163,7 @@ renderLoggedOutCreatePage =
             [ text "Tell us About Yourself" ]
         , div
             [ class "subtitle" ]
-            [ text "sign up free to instantly start creating collaboration requests" ]
+            [ text "sign up free to instantly start creating task requests" ]
         ]
 
 

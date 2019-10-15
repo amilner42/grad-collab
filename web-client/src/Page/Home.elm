@@ -102,7 +102,7 @@ renderHasCollabRequestsPage collabRequests =
         [ class "section" ]
         [ h1
             [ class "title is-4 has-text-centered" ]
-            [ text "Your Collaboration Requests" ]
+            [ text "Your Task Requests" ]
         , div
             [ class "columns is-multiline"
             , style "margin" "0px"
