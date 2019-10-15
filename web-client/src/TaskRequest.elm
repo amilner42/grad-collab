@@ -1,4 +1,4 @@
-module CollabRequest exposing (CollabRequest, CollabRequestData, CollabRequestWithOwner, collabRequestWithOwnerDecoder, decoder, empty, encode)
+module TaskRequest exposing (TaskRequest, TaskRequestData, TaskRequestWithOwner, decoder, empty, encode, taskRequestWithOwnerDecoder)
 
 import Api.Errors.Form as FormError
 import Json.Decode as Decode
@@ -7,7 +7,7 @@ import Json.Encode as Encode
 import User exposing (User)
 
 
-type alias CollabRequest =
+type alias TaskRequest =
     { id : String
     , field : String
     , subject : String
@@ -16,11 +16,10 @@ type alias CollabRequest =
     , reward : String
     , additionalInfo : String
     , userId : String
-    , invitedCollabs : List String
     }
 
 
-type alias CollabRequestData =
+type alias TaskRequestData =
     { field : String
     , subject : String
     , projectImpactSummary : String
@@ -30,13 +29,13 @@ type alias CollabRequestData =
     }
 
 
-type alias CollabRequestWithOwner =
+type alias TaskRequestWithOwner =
     { owner : User
-    , collabRequest : CollabRequest
+    , taskRequest : TaskRequest
     }
 
 
-empty : CollabRequestData
+empty : TaskRequestData
 empty =
     { field = ""
     , subject = ""
@@ -47,8 +46,8 @@ empty =
     }
 
 
-dataGoodForSubmission : CollabRequestData -> FormError.Error
-dataGoodForSubmission collabRequest =
+dataGoodForSubmission : TaskRequestData -> FormError.Error
+dataGoodForSubmission taskRequest =
     FormError.fromFieldErrors <|
         FormError.fieldErrorsFromList
             [ ( "field", Nothing )
@@ -56,21 +55,21 @@ dataGoodForSubmission collabRequest =
             ]
 
 
-encode : CollabRequestData -> Encode.Value
-encode collabRequest =
+encode : TaskRequestData -> Encode.Value
+encode taskRequest =
     Encode.object
-        [ ( "field", Encode.string collabRequest.field )
-        , ( "subject", Encode.string collabRequest.subject )
-        , ( "projectImpactSummary", Encode.string collabRequest.projectImpactSummary )
-        , ( "expectedTasksAndSkills", Encode.string collabRequest.expectedTasksAndSkills )
-        , ( "reward", Encode.string collabRequest.reward )
-        , ( "additionalInfo", Encode.string collabRequest.additionalInfo )
+        [ ( "field", Encode.string taskRequest.field )
+        , ( "subject", Encode.string taskRequest.subject )
+        , ( "projectImpactSummary", Encode.string taskRequest.projectImpactSummary )
+        , ( "expectedTasksAndSkills", Encode.string taskRequest.expectedTasksAndSkills )
+        , ( "reward", Encode.string taskRequest.reward )
+        , ( "additionalInfo", Encode.string taskRequest.additionalInfo )
         ]
 
 
-decoder : Decode.Decoder CollabRequest
+decoder : Decode.Decoder TaskRequest
 decoder =
-    Decode.succeed CollabRequest
+    Decode.succeed TaskRequest
         |> required "_id" Decode.string
         |> required "field" Decode.string
         |> required "subject" Decode.string
@@ -79,11 +78,10 @@ decoder =
         |> required "reward" Decode.string
         |> required "additionalInfo" Decode.string
         |> required "userId" Decode.string
-        |> required "invitedCollabs" (Decode.list Decode.string)
 
 
-collabRequestWithOwnerDecoder : Decode.Decoder CollabRequestWithOwner
-collabRequestWithOwnerDecoder =
-    Decode.succeed CollabRequestWithOwner
+taskRequestWithOwnerDecoder : Decode.Decoder TaskRequestWithOwner
+taskRequestWithOwnerDecoder =
+    Decode.succeed TaskRequestWithOwner
         |> required "user" User.decoder
-        |> required "collabRequest" decoder
+        |> required "taskRequest" decoder

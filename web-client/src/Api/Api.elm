@@ -1,4 +1,4 @@
-module Api.Api exposing (createCollabRequest, getCollabRequest, getCollabRequestWithOwner, getCollabRequests, getCurrentUser, inviteCollab, login, logout, register, updateAccount)
+module Api.Api exposing (createTaskRequest, getCurrentUser, getTaskRequest, getTaskRequestWithOwner, getTaskRequests, login, logout, register, updateAccount)
 
 {-| This module contains the `Cmd.Cmd`s to access API routes.
 -}
@@ -9,11 +9,11 @@ import Api.Endpoint as Endpoint
 import Api.Errors.Form as FormError
 import Api.Errors.GetCurrentUser as GetCurrentUserError
 import Api.Errors.Unknown as UnknownError
-import CollabRequest exposing (CollabRequestData)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as Encode
+import TaskRequest exposing (TaskRequestData)
 import User exposing (User)
 
 
@@ -105,76 +105,60 @@ logout handleResult =
 
 
 
--- CREATE COLLAB REQUEST
+-- CREATE TASK REQUEST
 
 
-{-| Upon success get the ID of the newly created collab request.
+{-| Upon success get the ID of the newly created task request.
 -}
-createCollabRequest : CollabRequestData -> (Result.Result (Core.HttpError FormError.Error) String -> msg) -> Cmd.Cmd msg
-createCollabRequest collabRequestData handleResult =
+createTaskRequest : TaskRequestData -> (Result.Result (Core.HttpError FormError.Error) String -> msg) -> Cmd.Cmd msg
+createTaskRequest taskRequestData handleResult =
     Core.post
-        Endpoint.collabRequests
+        Endpoint.taskRequests
         standardTimeout
         Nothing
-        (Http.jsonBody <| CollabRequest.encode collabRequestData)
-        (Core.expectJson handleResult (Decode.field "collabRequestId" Decode.string) FormError.decoder)
+        (Http.jsonBody <| TaskRequest.encode taskRequestData)
+        (Core.expectJson handleResult (Decode.field "taskRequestId" Decode.string) FormError.decoder)
 
 
 
--- GET COLLAB REQUEST
+-- GET TASK REQUEST
 
 
-getCollabRequest :
+getTaskRequest :
     String
-    -> (Result.Result (Core.HttpError UnknownError.Error) CollabRequest.CollabRequest -> msg)
+    -> (Result.Result (Core.HttpError UnknownError.Error) TaskRequest.TaskRequest -> msg)
     -> Cmd.Cmd msg
-getCollabRequest collabRequestId handleResult =
+getTaskRequest taskRequestId handleResult =
     Core.get
-        (Endpoint.collabRequest collabRequestId False)
+        (Endpoint.taskRequest taskRequestId False)
         standardTimeout
         Nothing
-        (Core.expectJson handleResult CollabRequest.decoder UnknownError.decoder)
+        (Core.expectJson handleResult TaskRequest.decoder UnknownError.decoder)
 
 
-getCollabRequestWithOwner :
+getTaskRequestWithOwner :
     String
-    -> (Result.Result (Core.HttpError UnknownError.Error) CollabRequest.CollabRequestWithOwner -> msg)
+    -> (Result.Result (Core.HttpError UnknownError.Error) TaskRequest.TaskRequestWithOwner -> msg)
     -> Cmd.Cmd msg
-getCollabRequestWithOwner collabRequestId handleResult =
+getTaskRequestWithOwner taskRequestId handleResult =
     Core.get
-        (Endpoint.collabRequest collabRequestId True)
+        (Endpoint.taskRequest taskRequestId True)
         standardTimeout
         Nothing
-        (Core.expectJson handleResult CollabRequest.collabRequestWithOwnerDecoder UnknownError.decoder)
+        (Core.expectJson handleResult TaskRequest.taskRequestWithOwnerDecoder UnknownError.decoder)
 
 
-{-| Gets a users collab-requests.
+{-| Gets a users task-requests.
 -}
-getCollabRequests :
-    (Result.Result (Core.HttpError UnknownError.Error) (List CollabRequest.CollabRequest) -> msg)
+getTaskRequests :
+    (Result.Result (Core.HttpError UnknownError.Error) (List TaskRequest.TaskRequest) -> msg)
     -> Cmd.Cmd msg
-getCollabRequests handleResult =
+getTaskRequests handleResult =
     Core.get
-        Endpoint.collabRequests
+        Endpoint.taskRequests
         standardTimeout
         Nothing
-        (Core.expectJson handleResult (Decode.list CollabRequest.decoder) UnknownError.decoder)
-
-
-
--- INVITE A COLLAB
-
-
-{-| Invite a collab to an open collab-request.
--}
-inviteCollab : String -> String -> (Result.Result (Core.HttpError FormError.Error) () -> msg) -> Cmd.Cmd msg
-inviteCollab collabRequestId invitedCollabEmail handleResult =
-    Core.post
-        (Endpoint.collabRequestInvites collabRequestId)
-        standardTimeout
-        Nothing
-        (Http.jsonBody <| Encode.object [ ( "invitedCollabEmail", Encode.string invitedCollabEmail ) ])
-        (Core.expectJson handleResult (Decode.succeed ()) FormError.decoder)
+        (Core.expectJson handleResult (Decode.list TaskRequest.decoder) UnknownError.decoder)
 
 
 

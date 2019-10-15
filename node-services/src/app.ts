@@ -11,7 +11,7 @@ import { expressValidatorToFormErrorMiddleware } from "./util/form";
 import cookieParser from "cookie-parser";
 
 import * as userRoutes from "./routes/user";
-import * as collabRequestRoutes from "./routes/collab-request";
+import * as taskRequestRoutes from "./routes/task-request";
 
 
 // Create Express server
@@ -67,13 +67,13 @@ app.patch(
   userRoutes.patchUpdateUser
 );
 app.post(
-    "/collab-requests",
-    collabRequestRoutes.postCollabRequestValidators,
+    "/task-requests",
+    taskRequestRoutes.postTaskRequestValidators,
     expressValidatorToFormErrorMiddleware,
-    collabRequestRoutes.postCollabRequest
+    taskRequestRoutes.postTaskRequest
 );
-app.get("/collab-requests/:id", collabRequestRoutes.getCollabRequest);
-app.get("/collab-requests", collabRequestRoutes.getCollabRequests);
+app.get("/task-requests/:id", taskRequestRoutes.getTaskRequest);
+app.get("/task-requests", taskRequestRoutes.getTaskRequests);
 
 
 export default app;

@@ -1,15 +1,15 @@
-module Page.Create exposing (Model, Msg, init, update, view)
+module Page.CreateTask exposing (Model, Msg, init, update, view)
 
 import Api.Api as Api
 import Api.Core as Core
 import Api.Errors.Form as FormError
 import Bulma
-import CollabRequest
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Route
 import Session exposing (Session)
+import TaskRequest
 import User exposing (User)
 
 
@@ -19,16 +19,16 @@ import User exposing (User)
 
 type alias Model =
     { session : Session
-    , collabRequestFormError : FormError.Error
-    , collabRequestFormData : CollabRequest.CollabRequestData
+    , taskRequestFormError : FormError.Error
+    , taskRequstFormData : TaskRequest.TaskRequestData
     }
 
 
 init : Session -> ( Model, Cmd msg )
 init session =
     ( { session = session
-      , collabRequestFormError = FormError.empty
-      , collabRequestFormData = CollabRequest.empty
+      , taskRequestFormError = FormError.empty
+      , taskRequstFormData = TaskRequest.empty
       }
     , Cmd.none
     )
@@ -45,7 +45,7 @@ view model =
             Session.user model.session
 
         crFormData =
-            model.collabRequestFormData
+            model.taskRequstFormData
     in
     { title = "Create"
     , content =
@@ -73,7 +73,7 @@ view model =
                                             ]
                                             []
                                     )
-                                    (FormError.getErrorForField "field" model.collabRequestFormError)
+                                    (FormError.getErrorForField "field" model.taskRequestFormError)
                                     (Just "Field")
                                 , Bulma.formControl
                                     (\hasError ->
@@ -85,7 +85,7 @@ view model =
                                             ]
                                             []
                                     )
-                                    (FormError.getErrorForField "subject" model.collabRequestFormError)
+                                    (FormError.getErrorForField "subject" model.taskRequestFormError)
                                     (Just "Subject")
                                 , Bulma.formControl
                                     (\hasError ->
@@ -98,7 +98,7 @@ view model =
                                             ]
                                             []
                                     )
-                                    (FormError.getErrorForField "projectImpactSummary" model.collabRequestFormError)
+                                    (FormError.getErrorForField "projectImpactSummary" model.taskRequestFormError)
                                     (Just "Project Impact Summary")
                                 , Bulma.formControl
                                     (\hasError ->
@@ -111,7 +111,7 @@ view model =
                                             ]
                                             []
                                     )
-                                    (FormError.getErrorForField "expectedTasksAndSkills" model.collabRequestFormError)
+                                    (FormError.getErrorForField "expectedTasksAndSkills" model.taskRequestFormError)
                                     (Just "Expected Tasks and Skills")
                                 , Bulma.formControl
                                     (\hasError ->
@@ -124,7 +124,7 @@ view model =
                                             ]
                                             []
                                     )
-                                    (FormError.getErrorForField "reward" model.collabRequestFormError)
+                                    (FormError.getErrorForField "reward" model.taskRequestFormError)
                                     (Just "Reward")
                                 , Bulma.formControl
                                     (\hasError ->
@@ -137,11 +137,11 @@ view model =
                                             ]
                                             []
                                     )
-                                    (FormError.getErrorForField "additionalInfo" model.collabRequestFormError)
+                                    (FormError.getErrorForField "additionalInfo" model.taskRequestFormError)
                                     (Just "Additional Info")
                                 , p
                                     [ class "title is-size-7 has-text-danger has-text-centered" ]
-                                    (List.map text model.collabRequestFormError.entire)
+                                    (List.map text model.taskRequestFormError.entire)
                                 , button
                                     [ class "button button is-success is-fullwidth"
                                     , onClick SubmittedForm
@@ -179,7 +179,7 @@ type Msg
     | EnteredReward String
     | EnteredAdditionalInfo String
     | SubmittedForm
-    | CompletedCreateCollabRequest (Result (Core.HttpError FormError.Error) String)
+    | CompletedCreateTaskRequest (Result (Core.HttpError FormError.Error) String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -189,7 +189,7 @@ update msg model =
             Session.navKey model.session
 
         updateFormData updater modelIn =
-            { modelIn | collabRequestFormData = updater model.collabRequestFormData }
+            { modelIn | taskRequstFormData = updater model.taskRequstFormData }
     in
     case msg of
         EnteredField fieldInput ->
@@ -211,10 +211,10 @@ update msg model =
             ( model |> updateFormData (\fd -> { fd | additionalInfo = additionalInfoInput }), Cmd.none )
 
         SubmittedForm ->
-            ( model, Api.createCollabRequest model.collabRequestFormData CompletedCreateCollabRequest )
+            ( model, Api.createTaskRequest model.taskRequstFormData CompletedCreateTaskRequest )
 
-        CompletedCreateCollabRequest (Ok collabRequestId) ->
-            ( model, Route.replaceUrl navKey <| Route.BrowseCollabRequest collabRequestId )
+        CompletedCreateTaskRequest (Ok taskRequestId) ->
+            ( model, Route.replaceUrl navKey <| Route.BrowseTaskRequest taskRequestId )
 
-        CompletedCreateCollabRequest (Err httpCreateRequestError) ->
-            ( { model | collabRequestFormError = FormError.fromHttpError httpCreateRequestError }, Cmd.none )
+        CompletedCreateTaskRequest (Err httpCreateRequestError) ->
+            ( { model | taskRequestFormError = FormError.fromHttpError httpCreateRequestError }, Cmd.none )

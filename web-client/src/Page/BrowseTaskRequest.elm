@@ -1,4 +1,4 @@
-module Page.BrowseCollabRequest exposing (Model, Msg, init, update, view)
+module Page.BrowseTaskRequest exposing (Model, Msg, init, update, view)
 
 import Account
 import Api.Api as Api
@@ -7,110 +7,110 @@ import Api.Errors.Form as FormError
 import Api.Errors.Unknown as UnknownError
 import AppLinks
 import Bulma
-import CollabRequest
 import FetchData
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import ListUtil
 import Session exposing (Session)
+import TaskRequest
 import User exposing (User)
 
 
 type alias Model =
     { session : Session
-    , inviteCollabName : String
-    , inviteCollabPersonalMessage : String
-    , inviteCollabShortSubjectTopic : String
-    , collabRequestId : String
-    , collabRequestWithOwner : FetchData.FetchData (Core.HttpError UnknownError.Error) CollabRequest.CollabRequestWithOwner
+    , inviteeName : String
+    , inviteePersonalMessage : String
+    , inviteeShortSubjectTopic : String
+    , taskRequestId : String
+    , taskRequestWithOwner : FetchData.FetchData (Core.HttpError UnknownError.Error) TaskRequest.TaskRequestWithOwner
     }
 
 
 init : Session -> String -> ( Model, Cmd Msg )
-init session collabRequestId =
+init session taskRequestId =
     ( { session = session
-      , inviteCollabName = ""
-      , inviteCollabPersonalMessage = ""
-      , inviteCollabShortSubjectTopic = ""
-      , collabRequestId = collabRequestId
-      , collabRequestWithOwner = FetchData.Loading
+      , inviteeName = ""
+      , inviteePersonalMessage = ""
+      , inviteeShortSubjectTopic = ""
+      , taskRequestId = taskRequestId
+      , taskRequestWithOwner = FetchData.Loading
       }
-    , Api.getCollabRequestWithOwner collabRequestId CompletedGetCollabRequestWithOwner
+    , Api.getTaskRequestWithOwner taskRequestId CompletedGetTaskRequestWithOwner
     )
 
 
 view : Model -> { title : String, content : Html.Html Msg }
 view model =
-    { title = "Browse Collab Request"
+    { title = "Browse Task Request"
     , content =
-        renderFetchCollabRequest
+        renderFetchTaskRequest
             (Session.user model.session)
-            model.collabRequestWithOwner
-            model.inviteCollabName
-            model.inviteCollabPersonalMessage
-            model.inviteCollabShortSubjectTopic
+            model.taskRequestWithOwner
+            model.inviteeName
+            model.inviteePersonalMessage
+            model.inviteeShortSubjectTopic
     }
 
 
-renderFetchCollabRequest :
+renderFetchTaskRequest :
     Maybe User
-    -> FetchData.FetchData (Core.HttpError UnknownError.Error) CollabRequest.CollabRequestWithOwner
+    -> FetchData.FetchData (Core.HttpError UnknownError.Error) TaskRequest.TaskRequestWithOwner
     -> String
     -> String
     -> String
     -> Html.Html Msg
-renderFetchCollabRequest maybeUser collabRequestWithOwnerFetch inviteCollabName inviteCollabPersonalMessage inviteCollabShortSubjectTopic =
-    case collabRequestWithOwnerFetch of
+renderFetchTaskRequest maybeUser taskRequestWithOwnerFetch inviteeName inviteePersonalMessage inviteeShortSubjectTopic =
+    case taskRequestWithOwnerFetch of
         FetchData.Loading ->
             -- Blank to avoid flashes
             div [] []
 
         FetchData.Failure _ ->
-            div [] [ text "Failed to browse this collab request...sorry!" ]
+            div [] [ text "Failed to browse this task request...sorry!" ]
 
-        FetchData.Success collabRequestWithOwner ->
-            renderCollabRequestPage
+        FetchData.Success taskRequestWithOwner ->
+            renderTaskRequestPage
                 { maybeUser = maybeUser
-                , collabRequestWithOwner = collabRequestWithOwner
-                , inviteCollabName = inviteCollabName
-                , inviteCollabPersonalMessage = inviteCollabPersonalMessage
-                , inviteCollabShortSubjectTopic = inviteCollabShortSubjectTopic
+                , taskRequestWithOwner = taskRequestWithOwner
+                , inviteeName = inviteeName
+                , inviteePersonalMessage = inviteePersonalMessage
+                , inviteeShortSubjectTopic = inviteeShortSubjectTopic
                 }
 
 
-type alias RenderCollabRequestPage =
+type alias RenderTaskRequestPage =
     { maybeUser : Maybe User
-    , collabRequestWithOwner : CollabRequest.CollabRequestWithOwner
-    , inviteCollabName : String
-    , inviteCollabPersonalMessage : String
-    , inviteCollabShortSubjectTopic : String
+    , taskRequestWithOwner : TaskRequest.TaskRequestWithOwner
+    , inviteeName : String
+    , inviteePersonalMessage : String
+    , inviteeShortSubjectTopic : String
     }
 
 
-renderCollabRequestPage : RenderCollabRequestPage -> Html.Html Msg
-renderCollabRequestPage config =
+renderTaskRequestPage : RenderTaskRequestPage -> Html.Html Msg
+renderTaskRequestPage config =
     let
         currentUserIsOwner =
             config.maybeUser
-                |> Maybe.map (.id >> (==) config.collabRequestWithOwner.collabRequest.userId)
+                |> Maybe.map (.id >> (==) config.taskRequestWithOwner.taskRequest.userId)
                 |> Maybe.withDefault False
     in
     div [] <|
         ListUtil.filterByBool
             [ ( currentUserIsOwner
               , renderOwnerEmailHelpPanel
-                    { inviteCollabName = config.inviteCollabName
-                    , inviteCollabPersonalMessage = config.inviteCollabPersonalMessage
-                    , inviteCollabShortSubjectTopic = config.inviteCollabShortSubjectTopic
-                    , collabRequestId = config.collabRequestWithOwner.collabRequest.id
-                    , ownerName = config.collabRequestWithOwner.owner.accountData.name
-                    , ownerUniversity = config.collabRequestWithOwner.owner.accountData.university
+                    { inviteeName = config.inviteeName
+                    , inviteePersonalMessage = config.inviteePersonalMessage
+                    , inviteeShortSubjectTopic = config.inviteeShortSubjectTopic
+                    , taskRequestId = config.taskRequestWithOwner.taskRequest.id
+                    , ownerName = config.taskRequestWithOwner.owner.accountData.name
+                    , ownerUniversity = config.taskRequestWithOwner.owner.accountData.university
                     }
               )
             , ( True
-              , renderCollabRequestWithOwnerPanel
-                    { collabRequestWithOwner = config.collabRequestWithOwner
+              , renderTaskRequestWithOwnerPanel
+                    { taskRequestWithOwner = config.taskRequestWithOwner
                     , currentUserIsOwner = currentUserIsOwner
                     }
               )
@@ -118,10 +118,10 @@ renderCollabRequestPage config =
 
 
 type alias RenderOwnerEmailHelpSectionConfig =
-    { inviteCollabName : String
-    , inviteCollabPersonalMessage : String
-    , inviteCollabShortSubjectTopic : String
-    , collabRequestId : String
+    { inviteeName : String
+    , inviteePersonalMessage : String
+    , inviteeShortSubjectTopic : String
+    , taskRequestId : String
     , ownerName : String
     , ownerUniversity : String
     }
@@ -169,8 +169,8 @@ renderOwnerEmailHelpPanel config =
                                             , ( "is-danger", hasError )
                                             ]
                                         , placeholder "Solving Dynamic Grid Flow Problems"
-                                        , value config.inviteCollabShortSubjectTopic
-                                        , onInput EnteredInviteCollabShortSubjectTopic
+                                        , value config.inviteeShortSubjectTopic
+                                        , onInput EnteredInviteeShortSubjectTopic
                                         ]
                                         []
                                 )
@@ -184,8 +184,8 @@ renderOwnerEmailHelpPanel config =
                                             , ( "is-danger", hasError )
                                             ]
                                         , placeholder "John Doe"
-                                        , value config.inviteCollabName
-                                        , onInput EnteredInviteCollabName
+                                        , value config.inviteeName
+                                        , onInput EnteredInviteeName
                                         ]
                                         []
                                 )
@@ -200,8 +200,8 @@ renderOwnerEmailHelpPanel config =
                                             ]
                                         , style "height" "150px"
                                         , placeholder <| "Your personal message"
-                                        , value config.inviteCollabPersonalMessage
-                                        , onInput EnteredInviteCollabPersonalMessage
+                                        , value config.inviteePersonalMessage
+                                        , onInput EnteredInviteePersonalMessage
                                         ]
                                         []
                                 )
@@ -214,14 +214,14 @@ renderOwnerEmailHelpPanel config =
                             , singleFieldContent <|
                                 createRecommendedSubject
                                     config.ownerUniversity
-                                    config.inviteCollabShortSubjectTopic
+                                    config.inviteeShortSubjectTopic
                             , div [ class "label" ] [ text "Email Body" ]
                             , singleFieldContent <|
                                 createRecommendedEmail
                                     config.ownerName
-                                    config.inviteCollabName
-                                    config.inviteCollabPersonalMessage
-                                    config.collabRequestId
+                                    config.inviteeName
+                                    config.inviteePersonalMessage
+                                    config.taskRequestId
                             ]
                         ]
                     ]
@@ -251,7 +251,7 @@ createRecommendedSubject ownerUniversity shortSubjectTopic =
 
 
 createRecommendedEmail : String -> String -> String -> String -> String
-createRecommendedEmail fromName toName personalMessage collabRequestId =
+createRecommendedEmail fromName toName personalMessage taskRequestId =
     let
         inEmailNameText =
             if String.isEmpty toName then
@@ -278,23 +278,23 @@ createRecommendedEmail fromName toName personalMessage collabRequestId =
 
 """ ++ inEmailPersonalMessageText ++ """
 
-If you're interested in collaborating with me, you can take a look at my bio and project expectations here: """ ++ AppLinks.linkToBrowseCollabRequest collabRequestId ++ """
+If you're interested in collaborating with me, you can take a look at my bio and project expectations here: """ ++ AppLinks.linkToBrowseTaskRequest taskRequestId ++ """
 
 Thanks for reading,
 """ ++ inEmailFromNameText
 
 
-type alias RenderCollabRequestWithOwnerPanelConfig =
-    { collabRequestWithOwner : CollabRequest.CollabRequestWithOwner
+type alias RenderTaskRequestWithOwnerPanelConfig =
+    { taskRequestWithOwner : TaskRequest.TaskRequestWithOwner
     , currentUserIsOwner : Bool
     }
 
 
-renderCollabRequestWithOwnerPanel : RenderCollabRequestWithOwnerPanelConfig -> Html Msg
-renderCollabRequestWithOwnerPanel config =
+renderTaskRequestWithOwnerPanel : RenderTaskRequestWithOwnerPanelConfig -> Html Msg
+renderTaskRequestWithOwnerPanel config =
     let
-        { owner, collabRequest } =
-            config.collabRequestWithOwner
+        { owner, taskRequest } =
+            config.taskRequestWithOwner
     in
     div
         [ class "columns", style "padding" "1.5rem 1.5rem" ]
@@ -303,7 +303,7 @@ renderCollabRequestWithOwnerPanel config =
             [ renderOwnerPanel { owner = owner, currentUserIsOwner = config.currentUserIsOwner } ]
         , div
             [ class "column is-6 has-text-centered" ]
-            [ renderCollabRequestPanel collabRequest ]
+            [ renderTaskRequestPanel taskRequest ]
         ]
 
 
@@ -390,57 +390,57 @@ renderOwnerPanel { owner, currentUserIsOwner } =
         ]
 
 
-renderCollabRequestPanel : CollabRequest.CollabRequest -> Html Msg
-renderCollabRequestPanel collabRequest =
+renderTaskRequestPanel : TaskRequest.TaskRequest -> Html Msg
+renderTaskRequestPanel taskRequest =
     div
         []
         [ div [ class "box" ] <|
             [ sectionTitle "Project Info"
             , singleFieldTitle "Field"
-            , singleFieldContent collabRequest.field
+            , singleFieldContent taskRequest.field
             , singleFieldTitle "Subject"
-            , singleFieldContent collabRequest.subject
+            , singleFieldContent taskRequest.subject
             , singleFieldTitle "Projct Impact Summary"
-            , singleFieldContent collabRequest.projectImpactSummary
+            , singleFieldContent taskRequest.projectImpactSummary
             , singleFieldTitle "Expected Tasks and Skills"
-            , singleFieldContent collabRequest.expectedTasksAndSkills
+            , singleFieldContent taskRequest.expectedTasksAndSkills
             , singleFieldTitle "Reward"
-            , singleFieldContent collabRequest.reward
+            , singleFieldContent taskRequest.reward
             ]
-                ++ (if String.isEmpty collabRequest.additionalInfo then
+                ++ (if String.isEmpty taskRequest.additionalInfo then
                         []
 
                     else
                         [ singleFieldTitle "Additional Info"
-                        , singleFieldContent collabRequest.additionalInfo
+                        , singleFieldContent taskRequest.additionalInfo
                         ]
                    )
         ]
 
 
 type Msg
-    = CompletedGetCollabRequestWithOwner (Result.Result (Core.HttpError UnknownError.Error) CollabRequest.CollabRequestWithOwner)
-    | EnteredInviteCollabName String
-    | EnteredInviteCollabPersonalMessage String
-    | EnteredInviteCollabShortSubjectTopic String
+    = CompletedGetTaskRequestWithOwner (Result.Result (Core.HttpError UnknownError.Error) TaskRequest.TaskRequestWithOwner)
+    | EnteredInviteeName String
+    | EnteredInviteePersonalMessage String
+    | EnteredInviteeShortSubjectTopic String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        CompletedGetCollabRequestWithOwner (Ok collabRequestWithOwner) ->
-            ( { model | collabRequestWithOwner = FetchData.Success collabRequestWithOwner }
+        CompletedGetTaskRequestWithOwner (Ok taskRequestWithOwner) ->
+            ( { model | taskRequestWithOwner = FetchData.Success taskRequestWithOwner }
             , Cmd.none
             )
 
-        CompletedGetCollabRequestWithOwner (Err err) ->
-            ( { model | collabRequestWithOwner = FetchData.Failure err }, Cmd.none )
+        CompletedGetTaskRequestWithOwner (Err err) ->
+            ( { model | taskRequestWithOwner = FetchData.Failure err }, Cmd.none )
 
-        EnteredInviteCollabName inviteCollabNameInput ->
-            ( { model | inviteCollabName = inviteCollabNameInput }, Cmd.none )
+        EnteredInviteeName inviteeNameInput ->
+            ( { model | inviteeName = inviteeNameInput }, Cmd.none )
 
-        EnteredInviteCollabPersonalMessage inviteCollabPersonalMessageInput ->
-            ( { model | inviteCollabPersonalMessage = inviteCollabPersonalMessageInput }, Cmd.none )
+        EnteredInviteePersonalMessage inviteePersonalMessageInput ->
+            ( { model | inviteePersonalMessage = inviteePersonalMessageInput }, Cmd.none )
 
-        EnteredInviteCollabShortSubjectTopic inviteCollabShortSubjectTopicInput ->
-            ( { model | inviteCollabShortSubjectTopic = inviteCollabShortSubjectTopicInput }, Cmd.none )
+        EnteredInviteeShortSubjectTopic inviteeShortSubjectTopicInput ->
+            ( { model | inviteeShortSubjectTopic = inviteeShortSubjectTopicInput }, Cmd.none )

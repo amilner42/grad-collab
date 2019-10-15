@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { check } from "express-validator";
 import { User, UserDocument, prepareForClient } from "../models/User";
-import { CollabRequest } from "../models/CollabRequest";
+import { TaskRequest } from "../models/TaskRequest";
 
 
-export const postCollabRequestValidators = [
+export const postTaskRequestValidators = [
     check("field", "Field cannot be blank").isLength({min: 1}),
     check("subject", "Subject cannot be blank").isLength({min: 1}),
     check("projectImpactSummary", "Projct impact summary cannot be blank").isLength({min: 1}),
@@ -14,10 +14,10 @@ export const postCollabRequestValidators = [
 
 
 /**
- * POST /collab-requests
- * Create a new collab-request for the currently logged-in user.
+ * POST /task-requests
+ * Create a new task-request for the currently logged-in user.
  */
-export const postCollabRequest = (req: Request, res: Response, next: NextFunction) => {
+export const postTaskRequest = (req: Request, res: Response, next: NextFunction) => {
 
     if (!req.user) {
         return res.sendStatus(401);
@@ -25,44 +25,44 @@ export const postCollabRequest = (req: Request, res: Response, next: NextFunctio
 
     const user = req.user as UserDocument;
 
-    const collabRequest = new CollabRequest({
+    const taskRequest = new TaskRequest({
         field: req.body.field,
         subject: req.body.subject,
         projectImpactSummary: req.body.projectImpactSummary,
         expectedTasksAndSkills: req.body.expectedTasksAndSkills,
         reward: req.body.reward,
         additionalInfo: req.body.additionalInfo,
-        userId: user.id,
-        invitedCollabs: []
+        userId: user.id
     });
 
-    collabRequest.save((err, collabRequest) => {
+    taskRequest.save((err, taskRequest) => {
         if (err) { return next(err); }
 
-        return res.status(200).json({ collabRequestId: collabRequest.id });
+        return res.status(200).json({ taskRequestId: taskRequest.id });
     });
 
 };
 
 
 /**
- * GET /collab-requests/:id
- * Gets a collab-request by it's ID.
+ * GET /task-requests/:id
+ *
+ * Gets a task-request by it's ID. An optional `withUser` query param attaches the owner to the result.
  */
-export const getCollabRequest = (req: Request, res: Response, next: NextFunction) => {
-    const collabRequestId = req.params.id;
+export const getTaskRequest = (req: Request, res: Response, next: NextFunction) => {
+    const taskRequestId = req.params.id;
     const withUser = req.query.withUser === "1";
 
-    CollabRequest.findById(collabRequestId).exec((err, collabRequest) => {
+    TaskRequest.findById(taskRequestId).exec((err, taskRequest) => {
         if (err) {
             return next(err);
         }
 
         if (!withUser) {
-            return res.status(200).json(collabRequest);
+            return res.status(200).json(taskRequest);
         }
 
-        User.findById(collabRequest.userId, (err, user) => {
+        User.findById(taskRequest.userId, (err, user) => {
 
             if (err) {
                 return next(err);
@@ -70,8 +70,8 @@ export const getCollabRequest = (req: Request, res: Response, next: NextFunction
 
             const result = {
                 user: prepareForClient(user),
-                collabRequest
-            }
+                taskRequest
+            };
 
             return res.status(200).json(result);
         });
@@ -81,10 +81,10 @@ export const getCollabRequest = (req: Request, res: Response, next: NextFunction
 
 
 /**
- * GET /collab-requests
- * Get the collab requests created by the current logged in user.
+ * GET /task-requests
+ * Get the task-requests created by the current logged in user.
  */
-export const getCollabRequests = (req: Request, res: Response, next: NextFunction) => {
+export const getTaskRequests = (req: Request, res: Response, next: NextFunction) => {
 
     if (!req.user) {
         return res.sendStatus(401);
@@ -92,13 +92,13 @@ export const getCollabRequests = (req: Request, res: Response, next: NextFunctio
 
     const user = req.user as UserDocument;
 
-    CollabRequest.find({ userId: user.id }, (err, collabRequests) => {
+    TaskRequest.find({ userId: user.id }, (err, taskRequests) => {
 
         if (err) {
             return next(err);
         }
 
-        return res.status(200).json(collabRequests);
+        return res.status(200).json(taskRequests);
     });
 
 };

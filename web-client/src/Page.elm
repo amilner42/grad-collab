@@ -91,7 +91,7 @@ viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeUser, activeTab } =
                         [ ( "navbar-item", True )
                         , ( "is-active", activeTab == Just Create )
                         ]
-                    , Route.href Route.Create
+                    , Route.href Route.CreateTask
                     ]
                     [ text "Create" ]
                 ]

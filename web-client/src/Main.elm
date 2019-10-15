@@ -18,8 +18,8 @@ import Page
 import Page.Account as Account
 import Page.Blank as Blank
 import Page.Browse as Browse
-import Page.BrowseCollabRequest as BrowseCollabRequest
-import Page.Create as Create
+import Page.BrowseTaskRequest as BrowseTaskRequest
+import Page.CreateTask as CreateTask
 import Page.Home as Home
 import Page.Login as Login
 import Page.NotFound as NotFound
@@ -47,8 +47,8 @@ type PageModel
     | Login Login.Model
     | Account Account.Model
     | Register Register.Model
-    | Create Create.Model
-    | BrowseCollabRequest BrowseCollabRequest.Model
+    | CreateTask CreateTask.Model
+    | BrowseTaskRequest BrowseTaskRequest.Model
     | Browse Browse.Model
 
 
@@ -101,11 +101,11 @@ view model =
         Register registerModel ->
             viewPage (Just Page.Register) GotRegisterMsg (Register.view registerModel)
 
-        Create createModel ->
-            viewPage (Just Page.Create) GotCreateMsg (Create.view createModel)
+        CreateTask createTaskModel ->
+            viewPage (Just Page.Create) GotCreateTaskMsg (CreateTask.view createTaskModel)
 
-        BrowseCollabRequest browseCollabRequestModel ->
-            viewPage (Just Page.Browse) GotBrowseCollabRequestMsg (BrowseCollabRequest.view browseCollabRequestModel)
+        BrowseTaskRequest browseTaskRequestModel ->
+            viewPage (Just Page.Browse) GotBrowseTaskRequestMsg (BrowseTaskRequest.view browseTaskRequestModel)
 
         Browse browseModel ->
             viewPage (Just Page.Browse) GotBrowseMsg (Browse.view browseModel)
@@ -127,8 +127,8 @@ type Msg
     | GotLoginMsg Login.Msg
     | GotRegisterMsg Register.Msg
     | GotAccountMsg Account.Msg
-    | GotCreateMsg Create.Msg
-    | GotBrowseCollabRequestMsg BrowseCollabRequest.Msg
+    | GotCreateTaskMsg CreateTask.Msg
+    | GotBrowseTaskRequestMsg BrowseTaskRequest.Msg
     | GotBrowseMsg Browse.Msg
 
 
@@ -150,11 +150,11 @@ toSession { pageModel } =
         Register registerModel ->
             registerModel.session
 
-        Create createModel ->
+        CreateTask createModel ->
             createModel.session
 
-        BrowseCollabRequest browseCollabRequestModel ->
-            browseCollabRequestModel.session
+        BrowseTaskRequest browseTaskRequestModel ->
+            browseTaskRequestModel.session
 
         Browse browseModel ->
             browseModel.session
@@ -228,13 +228,13 @@ changeRouteTo maybeRoute model =
                     Account.init session user
                         |> updatePageModel Account GotAccountMsg model
 
-        Just Route.Create ->
-            Create.init session
-                |> updatePageModel Create GotCreateMsg model
+        Just Route.CreateTask ->
+            CreateTask.init session
+                |> updatePageModel CreateTask GotCreateTaskMsg model
 
-        Just (Route.BrowseCollabRequest id) ->
-            BrowseCollabRequest.init session id
-                |> updatePageModel BrowseCollabRequest GotBrowseCollabRequestMsg model
+        Just (Route.BrowseTaskRequest id) ->
+            BrowseTaskRequest.init session id
+                |> updatePageModel BrowseTaskRequest GotBrowseTaskRequestMsg model
 
         Just Route.Browse ->
             Browse.init session
@@ -342,20 +342,20 @@ update msg model =
         ( GotHomeMsg _, _ ) ->
             ( model, Cmd.none )
 
-        ( GotCreateMsg pageMsg, Create create ) ->
-            Create.update pageMsg create
-                |> updatePageModel Create GotCreateMsg model
+        ( GotCreateTaskMsg pageMsg, CreateTask createTask ) ->
+            CreateTask.update pageMsg createTask
+                |> updatePageModel CreateTask GotCreateTaskMsg model
 
         -- Ignore message for wrong page.
-        ( GotCreateMsg _, _ ) ->
+        ( GotCreateTaskMsg _, _ ) ->
             ( model, Cmd.none )
 
-        ( GotBrowseCollabRequestMsg pageMsg, BrowseCollabRequest browseCollabRequestModel ) ->
-            BrowseCollabRequest.update pageMsg browseCollabRequestModel
-                |> updatePageModel BrowseCollabRequest GotBrowseCollabRequestMsg model
+        ( GotBrowseTaskRequestMsg pageMsg, BrowseTaskRequest browseTaskRequestModel ) ->
+            BrowseTaskRequest.update pageMsg browseTaskRequestModel
+                |> updatePageModel BrowseTaskRequest GotBrowseTaskRequestMsg model
 
         -- Ignore message for wrong page.
-        ( GotBrowseCollabRequestMsg _, _ ) ->
+        ( GotBrowseTaskRequestMsg _, _ ) ->
             ( model, Cmd.none )
 
         ( GotBrowseMsg pageMsg, Browse browseModel ) ->

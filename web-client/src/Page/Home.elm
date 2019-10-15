@@ -9,13 +9,13 @@ import Api.Errors.Form as FormError
 import Api.Errors.Unknown as UnknownError
 import Browser.Navigation as Nav
 import Bulma
-import CollabRequest exposing (CollabRequest)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import RemoteData exposing (RemoteData)
 import Route
 import Session exposing (Session)
+import TaskRequest exposing (TaskRequest)
 import User exposing (User)
 
 
@@ -25,7 +25,7 @@ import User exposing (User)
 
 type alias Model =
     { session : Session
-    , collabRequests : RemoteData.RemoteData (Core.HttpError UnknownError.Error) (List CollabRequest)
+    , taskRequests : RemoteData.RemoteData (Core.HttpError UnknownError.Error) (List TaskRequest)
     }
 
 
@@ -33,13 +33,13 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     case Session.user session of
         Nothing ->
-            ( { session = session, collabRequests = RemoteData.NotAsked }
+            ( { session = session, taskRequests = RemoteData.NotAsked }
             , Cmd.none
             )
 
         Just _ ->
-            ( { session = session, collabRequests = RemoteData.Loading }
-            , Api.getCollabRequests CompletedGetCollabRequests
+            ( { session = session, taskRequests = RemoteData.Loading }
+            , Api.getTaskRequests CompletedGetTaskRequests
             )
 
 
@@ -56,13 +56,13 @@ view model =
                 renderLandingPage
 
             Just _ ->
-                renderHomePage model.collabRequests
+                renderHomePage model.taskRequests
     }
 
 
-renderHomePage : RemoteData (Core.HttpError UnknownError.Error) (List CollabRequest) -> Html Msg
-renderHomePage rdCollabRequests =
-    case rdCollabRequests of
+renderHomePage : RemoteData (Core.HttpError UnknownError.Error) (List TaskRequest) -> Html Msg
+renderHomePage rdTaskRequests =
+    case rdTaskRequests of
         RemoteData.NotAsked ->
             div [] []
 
@@ -80,24 +80,24 @@ renderHomePage rdCollabRequests =
                     [ text "We will be back online shortly." ]
                 ]
 
-        RemoteData.Success collabRequests ->
-            if List.isEmpty collabRequests then
+        RemoteData.Success taskRequests ->
+            if List.isEmpty taskRequests then
                 div
                     [ class "section has-text-centered is-large" ]
                     [ div
                         [ class "title" ]
-                        [ text "You have no open collab requests." ]
+                        [ text "You have no open task requests." ]
                     , div
                         [ class "subtitle" ]
                         [ text "Create one easily to help find the perfect collaborator." ]
                     ]
 
             else
-                renderHasCollabRequestsPage collabRequests
+                renderHasTaskRequestsPage taskRequests
 
 
-renderHasCollabRequestsPage : List CollabRequest -> Html.Html Msg
-renderHasCollabRequestsPage collabRequests =
+renderHasTaskRequestsPage : List TaskRequest -> Html.Html Msg
+renderHasTaskRequestsPage taskRequests =
     div
         [ class "section" ]
         [ h1
@@ -107,15 +107,15 @@ renderHasCollabRequestsPage collabRequests =
             [ class "columns is-multiline"
             , style "margin" "0px"
             ]
-            (List.map renderCollabRequestLink collabRequests)
+            (List.map renderTaskRequestLink taskRequests)
         ]
 
 
-renderCollabRequestLink : CollabRequest -> Html.Html Msg
-renderCollabRequestLink collabRequest =
+renderTaskRequestLink : TaskRequest -> Html.Html Msg
+renderTaskRequestLink taskRequest =
     div
         [ class "column is-one-third-desktop is-half-tablet"
-        , onClick <| GoTo <| Route.BrowseCollabRequest collabRequest.id
+        , onClick <| GoTo <| Route.BrowseTaskRequest taskRequest.id
         , style "cursor" "pointer"
         ]
         [ div
@@ -131,7 +131,7 @@ renderCollabRequestLink collabRequest =
                 ]
                 [ div
                     [ class "level-item level-left has-text-weight-bold" ]
-                    [ text collabRequest.field ]
+                    [ text taskRequest.field ]
                 ]
             , div
                 [ class "level is-mobile"
@@ -141,14 +141,14 @@ renderCollabRequestLink collabRequest =
                 ]
                 [ div
                     [ class "level-item level-left has-text-grey-light" ]
-                    [ text collabRequest.subject ]
+                    [ text taskRequest.subject ]
                 ]
             , div
                 [ style "margin-top" "15px"
                 , style "overflow-y" "auto"
                 , style "height" "160px"
                 ]
-                [ text collabRequest.projectImpactSummary ]
+                [ text taskRequest.projectImpactSummary ]
             ]
         ]
 
@@ -181,7 +181,7 @@ renderLandingPage =
 
 type Msg
     = GoTo Route.Route
-    | CompletedGetCollabRequests (Result.Result (Core.HttpError UnknownError.Error) (List CollabRequest.CollabRequest))
+    | CompletedGetTaskRequests (Result.Result (Core.HttpError UnknownError.Error) (List TaskRequest))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -194,8 +194,8 @@ update msg model =
         GoTo route ->
             ( model, Route.pushUrl navKey route )
 
-        CompletedGetCollabRequests (Ok collabRequests) ->
-            ( { model | collabRequests = RemoteData.Success collabRequests }, Cmd.none )
+        CompletedGetTaskRequests (Ok taskRequests) ->
+            ( { model | taskRequests = RemoteData.Success taskRequests }, Cmd.none )
 
-        CompletedGetCollabRequests (Err httpGetCollabRequestsErr) ->
-            ( { model | collabRequests = RemoteData.Failure httpGetCollabRequestsErr }, Cmd.none )
+        CompletedGetTaskRequests (Err httpGetTaskRequestsErr) ->
+            ( { model | taskRequests = RemoteData.Failure httpGetTaskRequestsErr }, Cmd.none )

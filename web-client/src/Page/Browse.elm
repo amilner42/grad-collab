@@ -28,7 +28,7 @@ view model =
         div
             [ class "section is-large has-text-centered" ]
             [ div [ class "title" ] [ text "Page Under Construction" ]
-            , div [ class "subtitle" ] [ text "Soon you'll be able to browse and search all open collab requests from all over the world." ]
+            , div [ class "subtitle" ] [ text "Soon you'll be able to browse and search all open task requests from all over the world." ]
             ]
     }
 

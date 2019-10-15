@@ -26,9 +26,9 @@ type Route
     | Logout
     | Account
     | Register
-    | Create
+    | CreateTask
     | Browse
-    | BrowseCollabRequest String
+    | BrowseTaskRequest String
 
 
 parser : Parser (Route -> a) a
@@ -39,9 +39,9 @@ parser =
         , Parser.map Logout (s "logout")
         , Parser.map Account (s "account")
         , Parser.map Register (s "register")
-        , Parser.map Create (s "create")
+        , Parser.map CreateTask (s "create" </> s "task")
         , Parser.map Browse (s "browse")
-        , Parser.map BrowseCollabRequest (s "browse" </> string)
+        , Parser.map BrowseTaskRequest (s "browse" </> s "task" </> string)
         ]
 
 
@@ -99,13 +99,13 @@ routeToString page =
                 Register ->
                     [ "register" ]
 
-                Create ->
-                    [ "create" ]
+                CreateTask ->
+                    [ "create", "task" ]
 
                 Browse ->
                     [ "browse" ]
 
-                BrowseCollabRequest id ->
-                    [ "browse", id ]
+                BrowseTaskRequest id ->
+                    [ "browse", "task", id ]
     in
     "#/" ++ String.join "/" pieces

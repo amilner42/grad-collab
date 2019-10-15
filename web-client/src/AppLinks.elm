@@ -1,11 +1,11 @@
-module AppLinks exposing (linkToBrowseCollabRequest)
+module AppLinks exposing (linkToBrowseTaskRequest)
 
 import Route
 
 
-linkToBrowseCollabRequest : String -> String
-linkToBrowseCollabRequest collabRequestId =
-    linkTo <| Route.routeToString <| Route.BrowseCollabRequest collabRequestId
+linkToBrowseTaskRequest : String -> String
+linkToBrowseTaskRequest taskRequestId =
+    linkTo <| Route.routeToString <| Route.BrowseTaskRequest taskRequestId
 
 
 linkTo : String -> String

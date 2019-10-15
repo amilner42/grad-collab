@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 
-export type CollabRequestDocument = mongoose.Document & {
+export type TaskRequest = mongoose.Document & {
     field: string;
     subject: string;
     projectImpactSummary: string;
@@ -9,11 +9,10 @@ export type CollabRequestDocument = mongoose.Document & {
     reward: string;
     additionalInfo: string;
     userId: string;
-    invitedCollabs: string[];
 };
 
 
-const collabRequestSchema = new mongoose.Schema({
+const taskRequestSchema = new mongoose.Schema({
     field: { type: String, required: true },
     subject: { type: String, required: true },
     projectImpactSummary: { type: String, required: true },
@@ -22,8 +21,7 @@ const collabRequestSchema = new mongoose.Schema({
 
     additionalInfo: { type: String },
     userId: { type: String, required: true, index: true },
-    invitedCollabs: { type: [ String ], required: true }
 }, { timestamps: true });
 
 
-export const CollabRequest = mongoose.model<CollabRequestDocument>("CollabRequest", collabRequestSchema);
+export const TaskRequest = mongoose.model<TaskRequest>("TaskRequest", taskRequestSchema);
