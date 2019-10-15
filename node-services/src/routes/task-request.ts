@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { check } from "express-validator";
 import { User, UserDocument, prepareForClient } from "../models/User";
 import { TaskRequest } from "../models/TaskRequest";
+import R from "ramda";
 
 
 export const postTaskRequestValidators = [
@@ -84,17 +85,24 @@ export const getTaskRequest = (req: Request, res: Response, next: NextFunction) 
 
 /**
  * GET /task-requests
- * Get the task-requests created by the current logged in user.
+ * Get task requests configurable by some query params:
+ *  - forUserId
+ *  - researchField
+ *  - fieldRequestingHelpFrom
  */
 export const getTaskRequests = (req: Request, res: Response, next: NextFunction) => {
 
-    if (!req.user) {
-        return res.sendStatus(401);
-    }
+    const forUserId = req.query.forUserId;
+    const researchField = req.query.researchField;
+    const fieldRequestingHelpFrom = req.query.fieldRequestingHelpFrom;
 
-    const user = req.user as UserDocument;
+    const searchBy = {
+        ...(forUserId ? { userId: forUserId } : { }),
+        ...(researchField ? { researchField: researchField } : { }),
+        ...(fieldRequestingHelpFrom ? { fieldRequestingHelpFrom: fieldRequestingHelpFrom } : { })
+    };
 
-    TaskRequest.find({ userId: user.id }, (err, taskRequests) => {
+    TaskRequest.find(searchBy, (err, taskRequests) => {
 
         if (err) {
             return next(err);

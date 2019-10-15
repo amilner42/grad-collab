@@ -38,9 +38,11 @@ init session =
             , Cmd.none
             )
 
-        Just _ ->
+        Just user ->
             ( { session = session, taskRequests = RemoteData.Loading }
-            , Api.getTaskRequests CompletedGetTaskRequests
+            , Api.getTaskRequests
+                { forUserId = Just user.id, researchField = Nothing, fieldRequestingHelpFrom = Nothing }
+                CompletedGetTaskRequests
             )
 
 

@@ -1,10 +1,12 @@
-module Api.Endpoint exposing (Endpoint, login, logout, me, request, taskRequest, taskRequests, user, users)
+module Api.Endpoint exposing (Endpoint, TaskRequestQueryParams, login, logout, me, request, taskRequest, taskRequestEmptyQueryParams, taskRequests, user, users)
 
 {-| This module defines the opaque `Endpoint` type and the `request` ability to make an http request to an endpoint.
 -}
 
+import Field
 import Http
-import Url.Builder exposing (QueryParameter, int)
+import ListUtil
+import Url.Builder exposing (QueryParameter, int, string)
 
 
 type Endpoint
@@ -60,9 +62,29 @@ user userId =
     url [ "users", userId ] []
 
 
-taskRequests : Endpoint
-taskRequests =
-    url [ "task-requests" ] []
+type alias TaskRequestQueryParams =
+    { forUserId : Maybe String
+    , researchField : Maybe Field.Field
+    , fieldRequestingHelpFrom : Maybe Field.Field
+    }
+
+
+taskRequestEmptyQueryParams : TaskRequestQueryParams
+taskRequestEmptyQueryParams =
+    { forUserId = Nothing
+    , researchField = Nothing
+    , fieldRequestingHelpFrom = Nothing
+    }
+
+
+taskRequests : TaskRequestQueryParams -> Endpoint
+taskRequests { forUserId, researchField, fieldRequestingHelpFrom } =
+    url [ "task-requests" ] <|
+        ListUtil.filterByMaybe
+            [ ( forUserId, \val -> string "forUserId" val )
+            , ( researchField |> Maybe.map Field.toString, \val -> string "researchField" val )
+            , ( fieldRequestingHelpFrom |> Maybe.map Field.toString, \val -> string "fieldRequestingHelpFrom" val )
+            ]
 
 
 taskRequest : String -> Bool -> Endpoint

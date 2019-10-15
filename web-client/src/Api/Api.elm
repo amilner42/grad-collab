@@ -9,6 +9,7 @@ import Api.Endpoint as Endpoint
 import Api.Errors.Form as FormError
 import Api.Errors.GetCurrentUser as GetCurrentUserError
 import Api.Errors.Unknown as UnknownError
+import Field
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (optional)
@@ -113,7 +114,7 @@ logout handleResult =
 createTaskRequest : TaskRequestData -> (Result.Result (Core.HttpError FormError.Error) String -> msg) -> Cmd.Cmd msg
 createTaskRequest taskRequestData handleResult =
     Core.post
-        Endpoint.taskRequests
+        (Endpoint.taskRequests Endpoint.taskRequestEmptyQueryParams)
         standardTimeout
         Nothing
         (Http.jsonBody <| TaskRequest.encode taskRequestData)
@@ -151,11 +152,12 @@ getTaskRequestWithOwner taskRequestId handleResult =
 {-| Gets a users task-requests.
 -}
 getTaskRequests :
-    (Result.Result (Core.HttpError UnknownError.Error) (List TaskRequest.TaskRequest) -> msg)
+    Endpoint.TaskRequestQueryParams
+    -> (Result.Result (Core.HttpError UnknownError.Error) (List TaskRequest.TaskRequest) -> msg)
     -> Cmd.Cmd msg
-getTaskRequests handleResult =
+getTaskRequests qp handleResult =
     Core.get
-        Endpoint.taskRequests
+        (Endpoint.taskRequests qp)
         standardTimeout
         Nothing
         (Core.expectJson handleResult (Decode.list TaskRequest.decoder) UnknownError.decoder)

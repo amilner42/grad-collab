@@ -1,4 +1,4 @@
-module ListUtil exposing (filterByBool)
+module ListUtil exposing (filterByBool, filterByMaybe)
 
 
 filterByBool : List ( Bool, t ) -> List t
@@ -11,3 +11,8 @@ filterByBool =
             else
                 Nothing
         )
+
+
+filterByMaybe : List ( Maybe a, a -> t ) -> List t
+filterByMaybe =
+    List.filterMap (\( maybeVal, func ) -> Maybe.map func maybeVal)
