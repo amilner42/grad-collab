@@ -402,12 +402,10 @@ renderCollabRequestPanel collabRequest =
             , singleFieldContent collabRequest.subject
             , singleFieldTitle "Projct Impact Summary"
             , singleFieldContent collabRequest.projectImpactSummary
-            , singleFieldTitle "Expected Tasks"
-            , singleFieldContent collabRequest.expectedTasks
-            , singleFieldTitle "Expected Time"
-            , singleFieldContent collabRequest.expectedTime
-            , singleFieldTitle "Offer"
-            , singleFieldContent collabRequest.offer
+            , singleFieldTitle "Expected Tasks and Skills"
+            , singleFieldContent collabRequest.expectedTasksAndSkills
+            , singleFieldTitle "Reward"
+            , singleFieldContent collabRequest.reward
             ]
                 ++ (if String.isEmpty collabRequest.additionalInfo then
                         []

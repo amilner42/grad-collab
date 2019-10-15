@@ -12,10 +12,8 @@ type alias CollabRequest =
     , field : String
     , subject : String
     , projectImpactSummary : String
-    , expectedTasks : String
-    , expectedSkills : String
-    , expectedTime : String
-    , offer : String
+    , expectedTasksAndSkills : String
+    , reward : String
     , additionalInfo : String
     , userId : String
     , invitedCollabs : List String
@@ -26,10 +24,8 @@ type alias CollabRequestData =
     { field : String
     , subject : String
     , projectImpactSummary : String
-    , expectedTasks : String
-    , expectedSkills : String
-    , expectedTime : String
-    , offer : String
+    , expectedTasksAndSkills : String
+    , reward : String
     , additionalInfo : String
     }
 
@@ -45,10 +41,8 @@ empty =
     { field = ""
     , subject = ""
     , projectImpactSummary = ""
-    , expectedTasks = ""
-    , expectedSkills = ""
-    , expectedTime = ""
-    , offer = ""
+    , expectedTasksAndSkills = ""
+    , reward = ""
     , additionalInfo = ""
     }
 
@@ -68,10 +62,8 @@ encode collabRequest =
         [ ( "field", Encode.string collabRequest.field )
         , ( "subject", Encode.string collabRequest.subject )
         , ( "projectImpactSummary", Encode.string collabRequest.projectImpactSummary )
-        , ( "expectedTasks", Encode.string collabRequest.expectedTasks )
-        , ( "expectedSkills", Encode.string collabRequest.expectedSkills )
-        , ( "expectedTime", Encode.string collabRequest.expectedTime )
-        , ( "offer", Encode.string collabRequest.offer )
+        , ( "expectedTasksAndSkills", Encode.string collabRequest.expectedTasksAndSkills )
+        , ( "reward", Encode.string collabRequest.reward )
         , ( "additionalInfo", Encode.string collabRequest.additionalInfo )
         ]
 
@@ -83,10 +75,8 @@ decoder =
         |> required "field" Decode.string
         |> required "subject" Decode.string
         |> required "projectImpactSummary" Decode.string
-        |> required "expectedTasks" Decode.string
-        |> required "expectedSkills" Decode.string
-        |> required "expectedTime" Decode.string
-        |> required "offer" Decode.string
+        |> required "expectedTasksAndSkills" Decode.string
+        |> required "reward" Decode.string
         |> required "additionalInfo" Decode.string
         |> required "userId" Decode.string
         |> required "invitedCollabs" (Decode.list Decode.string)

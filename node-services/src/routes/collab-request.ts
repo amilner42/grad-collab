@@ -1,18 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import { check, sanitize } from "express-validator";
+import { check } from "express-validator";
 import { User, UserDocument, prepareForClient } from "../models/User";
-import { CollabRequest, toHtmlAndTextForEmail } from "../models/CollabRequest";
-import { sendEmail } from "../util/email";
+import { CollabRequest } from "../models/CollabRequest";
 
 
 export const postCollabRequestValidators = [
     check("field", "Field cannot be blank").isLength({min: 1}),
     check("subject", "Subject cannot be blank").isLength({min: 1}),
     check("projectImpactSummary", "Projct impact summary cannot be blank").isLength({min: 1}),
-    check("expectedTasks", "Expected tasks cannot be blank").isLength({min: 1}),
-    check("expectedSkills", "Expected skills cannot be blank").isLength({min: 1}),
-    check("expectedTime", "Expected time cannot be blank").isLength({min: 1}),
-    check("offer", "Offer time cannot be blank").isLength({min: 1}),
+    check("expectedTasksAndSkills", "Expected tasks and skills cannot be blank").isLength({min: 1}),
+    check("reward", "Reward cannot be blank").isLength({min: 1}),
 ];
 
 
@@ -32,10 +29,8 @@ export const postCollabRequest = (req: Request, res: Response, next: NextFunctio
         field: req.body.field,
         subject: req.body.subject,
         projectImpactSummary: req.body.projectImpactSummary,
-        expectedTasks: req.body.expectedTasks,
-        expectedSkills: req.body.expectedSkills,
-        expectedTime: req.body.expectedTime,
-        offer: req.body.offer,
+        expectedTasksAndSkills: req.body.expectedTasksAndSkills,
+        reward: req.body.reward,
         additionalInfo: req.body.additionalInfo,
         userId: user.id,
         invitedCollabs: []
@@ -105,63 +100,5 @@ export const getCollabRequests = (req: Request, res: Response, next: NextFunctio
 
         return res.status(200).json(collabRequests);
     });
-
-};
-
-
-export const postCollabRequestInvitesValidators = [
-    check("invitedCollabEmail", "Email is not valid").isEmail(),
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    sanitize("invitedCollabEmail").normalizeEmail({ gmail_remove_dots: false })
-];
-
-
-export const postCollabRequestInvites = async (req: Request, res: Response, next: NextFunction) => {
-
-    if (!req.user) {
-        return res.sendStatus(401);
-    }
-
-    const user = req.user as UserDocument;
-    const invitedCollabEmail = req.body.invitedCollabEmail;
-
-    CollabRequest.findOneAndUpdate(
-        {
-            _id: req.params.id,
-            userId: user.id,
-            invitedCollabs: { $nin: [ invitedCollabEmail ] },
-        },
-        {
-            $push: {
-                invitedCollabs: invitedCollabEmail
-            }
-        },
-        async (err, collabRequest) => {
-
-            if (err) {
-                return next(err);
-            }
-
-            if (!collabRequest) {
-                return res.status(500).json({ err: 1 });
-            }
-
-            const { html, text } = toHtmlAndTextForEmail(collabRequest);
-
-            try {
-                await sendEmail({
-                    from: "invite@gradcollab.com",
-                    to: invitedCollabEmail,
-                    subject: "You have received an invitation to collaborate on a research project",
-                    text,
-                    html
-                });
-                return res.status(200).json({ ok: 1 });
-
-            } catch (err) {
-                return next(err);
-            }
-        }
-    );
 
 };
