@@ -1,14 +1,17 @@
 module Account exposing (AccountData, blankFields, decoder, emptyData, encode)
 
+import EncodeUtil
 import Field exposing (Field)
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Json.Encode as Encode
 import ListUtil
+import UniversityPosition exposing (UniversityPosition)
 
 
 type alias AccountData =
     { name : String
+    , universityPosition : Maybe UniversityPosition
     , field : Maybe Field
     , specialization : String
     , currentAvailability : String
@@ -24,6 +27,7 @@ type alias AccountData =
 emptyData : AccountData
 emptyData =
     { name = ""
+    , universityPosition = Nothing
     , field = Nothing
     , specialization = ""
     , currentAvailability = ""
@@ -40,6 +44,7 @@ blankFields : AccountData -> List String
 blankFields accountData =
     ListUtil.filterByBool
         [ ( String.isEmpty accountData.name, "name" )
+        , ( accountData.universityPosition == Nothing, "universityPosition" )
         , ( accountData.field == Nothing, "field" )
         , ( String.isEmpty accountData.specialization, "specialization" )
         , ( String.isEmpty accountData.currentAvailability, "currentAvailability" )
@@ -56,11 +61,8 @@ encode : AccountData -> Encode.Value
 encode accountData =
     Encode.object
         [ ( "name", Encode.string accountData.name )
-        , ( "field"
-          , accountData.field
-                |> Maybe.map Field.encoder
-                |> Maybe.withDefault Encode.null
-          )
+        , ( "universityPosition", EncodeUtil.nullable UniversityPosition.encode accountData.universityPosition )
+        , ( "field", EncodeUtil.nullable Field.encoder accountData.field )
         , ( "specialization", Encode.string accountData.specialization )
         , ( "currentAvailability", Encode.string accountData.currentAvailability )
         , ( "supervisorEmail", Encode.string accountData.supervisorEmail )
@@ -76,6 +78,7 @@ decoder : Decode.Decoder AccountData
 decoder =
     Decode.succeed AccountData
         |> required "name" Decode.string
+        |> required "universityPosition" (Decode.nullable UniversityPosition.decoder)
         |> required "field" (Decode.nullable Field.decoder)
         |> required "specialization" Decode.string
         |> required "currentAvailability" Decode.string

@@ -12,7 +12,9 @@ import Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import MaybeUtil
 import Session exposing (Session)
+import UniversityPosition
 import User exposing (User)
 
 
@@ -79,16 +81,84 @@ view model =
                             (Just "Name")
                         , Bulma.formControl
                             (\hasError ->
-                                input
-                                    [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                    , onInput EnteredLinkedInUrl
-                                    , value model.accountForm.linkedInUrl
-                                    , placeholder "https://www.linkedin.com/in/arie-milner-8990ba106/"
+                                div
+                                    [ classList [ ( "select", True ), ( "is-danger", hasError ) ] ]
+                                    [ select
+                                        [ onInput SelectedUniversityPosition ]
+                                        [ option
+                                            [ disabled True
+                                            , hidden True
+                                            , selected (model.accountForm.universityPosition == Nothing)
+                                            ]
+                                            [ text "Select Your Current Position" ]
+                                        , option
+                                            [ selected <|
+                                                model.accountForm.universityPosition
+                                                    == Just UniversityPosition.Undergrad
+                                            ]
+                                            [ text "Undergrad" ]
+                                        , option
+                                            [ selected <|
+                                                model.accountForm.universityPosition
+                                                    == Just UniversityPosition.Masters
+                                            ]
+                                            [ text "Masters" ]
+                                        , option
+                                            [ selected <|
+                                                model.accountForm.universityPosition
+                                                    == Just UniversityPosition.PHD
+                                            ]
+                                            [ text "PHD" ]
+                                        , option
+                                            [ selected <|
+                                                model.accountForm.universityPosition
+                                                    == Just UniversityPosition.PostDoc
+                                            ]
+                                            [ text "Post Doc" ]
+                                        , option
+                                            [ selected <|
+                                                model.accountForm.universityPosition
+                                                    == Just UniversityPosition.Instructor
+                                            ]
+                                            [ text "Instructor" ]
+                                        , option
+                                            [ selected <|
+                                                model.accountForm.universityPosition
+                                                    == Just UniversityPosition.AssistantProfessor
+                                            ]
+                                            [ text "Assistant Professor" ]
+                                        , option
+                                            [ selected <|
+                                                model.accountForm.universityPosition
+                                                    == Just UniversityPosition.Professor
+                                            ]
+                                            [ text "Professor" ]
+                                        ]
                                     ]
-                                    []
                             )
-                            (FormError.getErrorForField "linkedInUrl" model.formError)
-                            (Just "LinkedIn Url")
+                            (FormError.getErrorForField "universityPosition" model.formError)
+                            (Just "University Position")
+                        , if
+                            MaybeUtil.mapWithDefault
+                                False
+                                UniversityPosition.hasSupervisor
+                                model.accountForm.universityPosition
+                          then
+                            Bulma.formControl
+                                (\hasError ->
+                                    input
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , onInput EnteredSupervisorEmail
+                                        , value model.accountForm.supervisorEmail
+                                        , placeholder "prof.name@myuni.com"
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "supervisorEmail" model.formError)
+                                (Just "Supervisor Email")
+
+                          else
+                            div [ class "is-hidden" ] []
                         , Bulma.formControl
                             (\hasError ->
                                 div
@@ -175,18 +245,6 @@ view model =
                             (Just "Current Availability")
                         , Bulma.formControl
                             (\hasError ->
-                                input
-                                    [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                    , onInput EnteredSupervisorEmail
-                                    , value model.accountForm.supervisorEmail
-                                    , placeholder "smartprof@myuni.com"
-                                    ]
-                                    []
-                            )
-                            (FormError.getErrorForField "supervisorEmail" model.formError)
-                            (Just "Supervisor Email")
-                        , Bulma.formControl
-                            (\hasError ->
                                 textarea
                                     [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
                                     , onInput EnteredShortBio
@@ -211,6 +269,18 @@ view model =
                             )
                             (FormError.getErrorForField "researchExperienceAndPapers" model.formError)
                             (Just "Research Papers and Experience")
+                        , Bulma.formControl
+                            (\hasError ->
+                                input
+                                    [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                    , onInput EnteredLinkedInUrl
+                                    , value model.accountForm.linkedInUrl
+                                    , placeholder "https://www.linkedin.com/in/arie-milner-8990ba106/"
+                                    ]
+                                    []
+                            )
+                            (FormError.getErrorForField "linkedInUrl" model.formError)
+                            (Just "LinkedIn Url")
                         , p
                             [ class "title is-size-7 has-text-danger has-text-centered" ]
                             (List.map text model.formError.entire)
@@ -233,6 +303,7 @@ view model =
 type Msg
     = NoOp
     | EnteredName String
+    | SelectedUniversityPosition String
     | SelectedField String
     | EnteredSpecialization String
     | EnteredUniversity String
@@ -261,6 +332,19 @@ update msg model =
 
         EnteredName nameInput ->
             ( { model | accountForm = updateAccountForm (\accountForm -> { accountForm | name = nameInput }) }
+            , Cmd.none
+            )
+
+        SelectedUniversityPosition selectedUniversityPosition ->
+            ( { model
+                | accountForm =
+                    updateAccountForm
+                        (\accountForm ->
+                            { accountForm
+                                | universityPosition = UniversityPosition.fromString selectedUniversityPosition
+                            }
+                        )
+              }
             , Cmd.none
             )
 

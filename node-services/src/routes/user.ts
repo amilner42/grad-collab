@@ -90,6 +90,7 @@ export const postRegister = (req: Request, res: Response, next: NextFunction) =>
         password: req.body.password,
 
         name: "",
+        universityPosition: null,
         field: null,
         specialization: "",
         currentAvailability: "",

@@ -7,6 +7,7 @@ export type UserDocument = mongoose.Document & {
     email: string;
     password: string;
     name: string;
+    universityPosition: string;
     field: string | null;
     specialization: string;
     currentAvailability: string;
@@ -28,6 +29,7 @@ const userSchema = new mongoose.Schema({
 
     name: String,
     field: String,
+    universityPosition: String,
     specialization: String,
     currentAvailability: String,
     supervisorEmail: String,
@@ -78,6 +80,7 @@ export const prepareForClient = (user: UserDocument) => {
         "degreesHeld",
         "shortBio",
         "linkedInUrl",
+        "universityPosition"
     ], user);
 };
 
