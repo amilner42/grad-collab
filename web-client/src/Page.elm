@@ -50,7 +50,7 @@ Will have log-in/sign-up or logout buttons according to whether there is a `User
 -}
 viewNavbar : RenderPageConfig msg -> Html msg
 viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeUser, activeTab } =
-    nav [ class "navbar is-info" ]
+    nav [ class "navbar is-primary" ]
         [ div
             [ class "navbar-brand" ]
             [ div

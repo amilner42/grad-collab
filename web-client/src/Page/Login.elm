@@ -90,7 +90,7 @@ view model =
                             (FormError.getErrorForField "password" model.formError)
                             Nothing
                         , button
-                            [ class "button is-success is-fullwidth is-large"
+                            [ class "button is-success is-fullwidth"
                             , onClick SubmittedForm
                             ]
                             [ text "Log in" ]

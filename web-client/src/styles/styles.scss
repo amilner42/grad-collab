@@ -1,8 +1,16 @@
 /** Global SCSS */
 // TODO
 
+$primary: #2F496E;
+$success: #2988BC;
+
 /** External CSS */
 @import "~bulma/bulma";
 
 /** Internal SCSS files */
 @import 'home.scss';
+
+
+html {
+  background-color: #F1F2F2;
+}
