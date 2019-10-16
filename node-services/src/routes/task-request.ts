@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { check } from "express-validator";
 import { User, UserDocument, prepareForClient } from "../models/User";
 import { TaskRequest } from "../models/TaskRequest";
-import R from "ramda";
 
 
 export const postTaskRequestValidators = [
@@ -35,6 +34,7 @@ export const postTaskRequest = (req: Request, res: Response, next: NextFunction)
         expectedTasksAndSkills: req.body.expectedTasksAndSkills,
         reward: req.body.reward,
         additionalInfo: req.body.additionalInfo,
+        state: "open",
         userId: user.id
     });
 

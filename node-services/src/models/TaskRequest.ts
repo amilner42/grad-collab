@@ -9,6 +9,7 @@ export type TaskRequest = mongoose.Document & {
     expectedTasksAndSkills: string;
     reward: string;
     additionalInfo: string;
+    state: string;
     userId: string;
 };
 
@@ -21,6 +22,7 @@ const taskRequestSchema = new mongoose.Schema({
     expectedTasksAndSkills: { type: String, required: true },
     reward: { type: String, required: true },
     additionalInfo: { type: String },
+    state: { type: String, required: true },
     userId: { type: String, required: true, index: true },
 }, { timestamps: true });
 
