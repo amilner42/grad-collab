@@ -39,7 +39,7 @@ init session user =
 
 view : Model -> { title : String, content : Html.Html Msg }
 view model =
-    { title = "Browse"
+    { title = "Account"
     , content =
         let
             changedAccountData =

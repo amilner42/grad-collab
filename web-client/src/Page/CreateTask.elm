@@ -48,7 +48,7 @@ view model =
         crFormData =
             model.taskRequstFormData
     in
-    { title = "Create"
+    { title = "Create Task Request"
     , content =
         case maybeUser of
             Nothing ->
