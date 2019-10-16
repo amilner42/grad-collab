@@ -70,76 +70,104 @@ renderHasTaskRequestsPage researchFieldSearchFilter fieldRequestingHelpFromSearc
             [ text "Open Task Requests" ]
         , div
             [ style "padding" "0 10px" ]
-            [ Bulma.formControl
-                (\hasError ->
-                    div
-                        [ classList [ ( "select", True ), ( "is-danger", hasError ) ] ]
-                        [ select
-                            [ onInput SelectedSearchResearchField ]
-                            [ option
-                                [ disabled True
-                                , hidden True
-                                , selected (researchFieldSearchFilter == Nothing)
+            [ div
+                [ class "field is-horizontal" ]
+                [ p
+                    [ class "label", style "padding-right" "10px", style "line-height" "36px" ]
+                    [ text "Search Filters" ]
+                , div
+                    [ class "field-body" ]
+                    [ div
+                        [ class "field is-narrow has-addons" ]
+                        [ div
+                            [ class "control" ]
+                            [ div
+                                [ class "select is-fullwidth" ]
+                                [ select
+                                    [ onInput SelectedSearchResearchField ]
+                                    [ option
+                                        [ disabled True
+                                        , hidden True
+                                        , selected (researchFieldSearchFilter == Nothing)
+                                        ]
+                                        [ text "Field of Research" ]
+                                    , option
+                                        [ selected (researchFieldSearchFilter == Just Field.Biology) ]
+                                        [ text "Biology" ]
+                                    , option
+                                        [ selected (researchFieldSearchFilter == Just Field.Chemistry) ]
+                                        [ text "Chemistry" ]
+                                    , option
+                                        [ selected (researchFieldSearchFilter == Just Field.Physics) ]
+                                        [ text "Physics" ]
+                                    , option
+                                        [ selected (researchFieldSearchFilter == Just Field.Math) ]
+                                        [ text "Math" ]
+                                    , option
+                                        [ selected (researchFieldSearchFilter == Just Field.Stats) ]
+                                        [ text "Stats" ]
+                                    , option
+                                        [ selected (researchFieldSearchFilter == Just Field.ComputerScience) ]
+                                        [ text "Computer Science" ]
+                                    ]
                                 ]
-                                [ text "Search Reseach by Field" ]
-                            , option
-                                [ selected (researchFieldSearchFilter == Just Field.Biology) ]
-                                [ text "Biology" ]
-                            , option
-                                [ selected (researchFieldSearchFilter == Just Field.Chemistry) ]
-                                [ text "Chemistry" ]
-                            , option
-                                [ selected (researchFieldSearchFilter == Just Field.Physics) ]
-                                [ text "Physics" ]
-                            , option
-                                [ selected (researchFieldSearchFilter == Just Field.Math) ]
-                                [ text "Math" ]
-                            , option
-                                [ selected (researchFieldSearchFilter == Just Field.Stats) ]
-                                [ text "Stats" ]
-                            , option
-                                [ selected (researchFieldSearchFilter == Just Field.ComputerScience) ]
-                                [ text "Computer Science" ]
+                            ]
+                        , div
+                            [ class "control" ]
+                            [ button
+                                [ class "button"
+                                , disabled <| researchFieldSearchFilter == Nothing
+                                , onClick <| SelectedSearchResearchField ""
+                                ]
+                                [ text "clear" ]
                             ]
                         ]
-                )
-                []
-                Nothing
-            , Bulma.formControl
-                (\hasError ->
-                    div
-                        [ classList [ ( "select", True ), ( "is-danger", hasError ) ] ]
-                        [ select
-                            [ onInput SelectedSearchFieldRequestingHelpFrom ]
-                            [ option
-                                [ disabled True
-                                , hidden True
-                                , selected (fieldRequestingHelpFromSearchFilter == Nothing)
+                    , div
+                        [ class "field is-narrow has-addons" ]
+                        [ div
+                            [ class "control" ]
+                            [ div
+                                [ class "select is-fullwidth" ]
+                                [ select
+                                    [ onInput SelectedSearchFieldRequestingHelpFrom ]
+                                    [ option
+                                        [ disabled True
+                                        , hidden True
+                                        , selected (fieldRequestingHelpFromSearchFilter == Nothing)
+                                        ]
+                                        [ text "Field Requesting Help From" ]
+                                    , option
+                                        [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Biology) ]
+                                        [ text "Biology" ]
+                                    , option
+                                        [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Chemistry) ]
+                                        [ text "Chemistry" ]
+                                    , option
+                                        [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Physics) ]
+                                        [ text "Physics" ]
+                                    , option
+                                        [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Math) ]
+                                        [ text "Math" ]
+                                    , option
+                                        [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Stats) ]
+                                        [ text "Stats" ]
+                                    , option
+                                        [ selected (fieldRequestingHelpFromSearchFilter == Just Field.ComputerScience) ]
+                                        [ text "Computer Science" ]
+                                    ]
                                 ]
-                                [ text "Search by Field Requesting Help From" ]
-                            , option
-                                [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Biology) ]
-                                [ text "Biology" ]
-                            , option
-                                [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Chemistry) ]
-                                [ text "Chemistry" ]
-                            , option
-                                [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Physics) ]
-                                [ text "Physics" ]
-                            , option
-                                [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Math) ]
-                                [ text "Math" ]
-                            , option
-                                [ selected (fieldRequestingHelpFromSearchFilter == Just Field.Stats) ]
-                                [ text "Stats" ]
-                            , option
-                                [ selected (fieldRequestingHelpFromSearchFilter == Just Field.ComputerScience) ]
-                                [ text "Computer Science" ]
+                            ]
+                        , div [ class "control" ]
+                            [ button
+                                [ class "button"
+                                , disabled <| fieldRequestingHelpFromSearchFilter == Nothing
+                                , onClick <| SelectedSearchFieldRequestingHelpFrom ""
+                                ]
+                                [ text "clear" ]
                             ]
                         ]
-                )
-                []
-                Nothing
+                    ]
+                ]
             ]
         , if List.isEmpty taskRequests then
             div
