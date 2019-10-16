@@ -159,21 +159,16 @@ renderTaskRequestLink taskRequest =
 
 renderLandingPage : Html Msg
 renderLandingPage =
-    section
-        [ class "section is-large" ]
+    div
+        [ class "hero is-primary is-fullheight-with-navbar" ]
         [ div
-            [ class "container" ]
+            [ class "hero-body" ]
             [ div
-                [ class "columns is-centered" ]
-                [ div
-                    [ class "column is-half" ]
-                    [ h1
-                        [ class "title has-text-centered" ]
-                        [ text "Welcome" ]
-                    , h2
-                        [ class "subtitle has-text-centered" ]
-                        [ text "collaborating easily and effectively" ]
-                    ]
+                [ class "container has-text-centered" ]
+                [ h1 [ class "title is-2 has-text-primary-compliment" ]
+                    [ text "ThinkerGraph" ]
+                , h2 [ class "subtitle is-4" ]
+                    [ text "the platform for effective scientific collaboration" ]
                 ]
             ]
         ]

@@ -74,6 +74,7 @@ viewNavbar { mobileNavbarOpen, toggleMobileNavbar, maybeUser, activeTab } =
                     [ classList
                         [ ( "navbar-item", True )
                         , ( "is-active", activeTab == Just Home )
+                        , ( "is-hidden", maybeUser == Nothing && activeTab == Just Home )
                         ]
                     , Route.href Route.Home
                     ]
