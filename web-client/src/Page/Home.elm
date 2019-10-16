@@ -125,6 +125,7 @@ renderTaskRequestLink taskRequest =
             [ class "box has-text-centered"
             , style "height" "250px"
             , style "padding" "10px"
+            , style "border-radius" "0px"
             ]
             [ div
                 [ class "level is-mobile"
