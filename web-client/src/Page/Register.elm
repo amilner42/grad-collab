@@ -60,41 +60,47 @@ view model =
                 [ class "container" ]
                 [ div
                     [ class "columns is-centered" ]
-                    [ div [ class "column is-half" ]
-                        [ h1 [ class "title has-text-centered" ] [ text "Sign Up" ]
-                        , p
-                            [ class "title is-size-7 has-text-danger has-text-centered" ]
-                            (List.map text <| model.formError.entire)
-                        , Bulma.formControl
-                            (\hasError ->
-                                input
-                                    [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                    , placeholder "school email"
-                                    , onInput EnteredEmail
-                                    , value model.form.email
-                                    ]
-                                    []
-                            )
-                            (FormError.getErrorForField "email" model.formError)
-                            Nothing
-                        , Bulma.formControl
-                            (\hasError ->
-                                input
-                                    [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
-                                    , placeholder "password"
-                                    , type_ "password"
-                                    , onInput EnteredPassword
-                                    , value model.form.password
-                                    ]
-                                    []
-                            )
-                            (FormError.getErrorForField "password" model.formError)
-                            Nothing
-                        , button
-                            [ class "button button is-success is-fullwidth"
-                            , onClick SubmittedForm
+                    [ div
+                        [ class "column is-half" ]
+                        [ div
+                            [ class "box", style "padding" "40px" ]
+                            [ h1 [ class "title has-text-centered" ] [ text "Join the Community" ]
+                            , p
+                                [ class "title is-size-7 has-text-danger has-text-centered" ]
+                                (List.map text <| model.formError.entire)
+                            , Bulma.formControl
+                                (\hasError ->
+                                    input
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , style "text-align" "center"
+                                        , placeholder "school email"
+                                        , onInput EnteredEmail
+                                        , value model.form.email
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "email" model.formError)
+                                Nothing
+                            , Bulma.formControl
+                                (\hasError ->
+                                    input
+                                        [ classList [ ( "input", True ), ( "is-danger", hasError ) ]
+                                        , style "text-align" "center"
+                                        , placeholder "password"
+                                        , type_ "password"
+                                        , onInput EnteredPassword
+                                        , value model.form.password
+                                        ]
+                                        []
+                                )
+                                (FormError.getErrorForField "password" model.formError)
+                                Nothing
+                            , button
+                                [ class "button button is-success is-fullwidth"
+                                , onClick SubmittedForm
+                                ]
+                                [ text "Sign up" ]
                             ]
-                            [ text "Sign up" ]
                         ]
                     ]
                 ]
